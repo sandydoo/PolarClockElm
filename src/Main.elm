@@ -32,13 +32,6 @@ main =
 -- Model
 
 
---type alias Settings =
---  { width : Int
---  , height : Int
---  , armRadius : Int
---  }
-
-
 type alias Model =
   { time : Time.Posix
   , timezone : Time.Zone
