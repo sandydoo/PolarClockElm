@@ -7,7 +7,7 @@
 
 # Polar Clock
 
-##### A colorful animated clock in polar coordinates.
+**A colorful animated clock in polar coordinates.**
 
 Not a very good clock, not a very good screen *saver*, but, *oh-so very pretty*.
 
