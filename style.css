@@ -26,6 +26,10 @@ body {
   fill: #222;
 }
 
+circle.clock-tick-hide-overflow {
+  stroke: #222;
+}
+
 .clock-tick text {
   font-family: "Futura", "Helvetica Neue", helvetica, arial, sans-serif;
   font-weight: 300;

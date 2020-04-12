@@ -78,7 +78,8 @@ drawTicks { interval, length, radius, armRadius } =
         [ Svg.circle
             [ SA.cx "0"
             , SA.cy "0"
-            , SA.r <| String.fromFloat (0.85 * armRadius) ]
+            , SA.r <| String.fromFloat (0.7 * armRadius)
+            ]
             []
         , Svg.text_
           [ SA.dy "0.35em"
@@ -143,22 +144,35 @@ drawArm delta { radius, armRadius, angle } =
     fill =
       Color.stringFromHSL <|
         Color.interpolateHSL (Color.HSL 0 76.4 75.1) (Color.HSL 360 76.4 75.1) progress
+
+    ( cx, cy ) = pointOnArc 0 0 radius (Anim.animate delta angle)
   in
-  Svg.path
-    [ SA.d <|
-      drawArc
-        { startAngle = -armRadius / radius
-        , endAngle = Anim.animate delta angle + (armRadius / radius)
-        , innerRadius = radius - armRadius
-        , outerRadius = radius + armRadius
-        , cornerRadius = armRadius
-        }
-        ++ drawDot radius (Anim.animate delta angle - (armRadius / radius)) (0.85 * armRadius)
-        ++ "Z"
-    , SA.fill fill
-    , SA.fillRule "evenodd"
+  Svg.g []
+    [ Svg.path
+        [ SA.d <|
+          drawArc
+            { startAngle = -armRadius / radius
+            , endAngle = Anim.animate delta angle + (armRadius / radius)
+            , innerRadius = radius - armRadius
+            , outerRadius = radius + armRadius
+            , cornerRadius = armRadius
+            }
+            ++ drawDot radius (Anim.animate delta angle - (armRadius / radius)) (0.8 * armRadius)
+            ++ "Z"
+        , SA.fill fill
+        , SA.fillRule "evenodd"
+        ]
+        []
+    , Svg.circle
+        [ SA.class "clock-tick-hide-overflow"
+        , SA.cx <| String.fromFloat cx ++ "px"
+        , SA.cy <| String.fromFloat cy ++ "px"
+        , SA.fill "none"
+        , SA.strokeWidth <| String.fromFloat (0.3 * armRadius) ++ "px"
+        , SA.r <| String.fromFloat (0.7 * armRadius)
+        ]
+        []
     ]
-    []
 
 
 drawArms delta clockArms =
