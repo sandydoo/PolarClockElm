@@ -43,8 +43,8 @@ type alias Model =
 
 
 type alias ClockArm =
-  { length : Int
-  , interval : List String
+  { interval : List String
+  , length : Int
   , fromTime : Time.Zone -> Time.Posix -> Int
   , radius : Float
   , armRadius : Float
@@ -53,13 +53,13 @@ type alias ClockArm =
 
 
 init : Flags -> (Model, Cmd Msg)
-init {currentTime, width, height} =
+init { currentTime, width, height } =
   ( { time = Time.millisToPosix currentTime
     , timezone = Time.utc
-    , delta = 0
     , clockArms = createClockArms width height
     , width = width
     , height = height
+    , delta = 0
     }
   , Task.perform UpdateTimeZone Time.here
   )
@@ -167,7 +167,8 @@ update msg model =
             |> Anim.duration 750
             |> Anim.ease outQuart
 
-        updateAngle clockArm = { clockArm | angle = newAnimatedAngle clockArm }
+        updateAngle clockArm =
+          { clockArm | angle = newAnimatedAngle clockArm }
 
         newClockArms =
           List.map updateAngle model.clockArms
@@ -201,4 +202,3 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   Html.div [] [ Draw.drawClock model ]
-

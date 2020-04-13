@@ -25,7 +25,7 @@ type alias Arc =
   }
 
 
-drawClock {clockArms, width, height, delta} =
+drawClock { clockArms, width, height, delta } =
   let
     viewbox =
       "0 0 " ++ String.fromInt width ++ " " ++ String.fromInt height
@@ -39,11 +39,10 @@ drawClock {clockArms, width, height, delta} =
     , SA.viewBox viewbox
     ]
     [ Svg.g
-      [ SA.transform <| translate
-      ]
+      [ SA.transform translate]
       [ SL.lazy drawTracks clockArms
       , SL.lazy2 drawTrackHidingCircles delta clockArms
-      , SL.lazy drawTicks_ clockArms
+      , SL.lazy drawTicks clockArms
       , SL.lazy2 drawArms delta clockArms
       ]
     ]
@@ -55,12 +54,12 @@ drawTrack radius =
     , SA.cy "0"
     , SA.r (String.fromFloat radius)
     , SA.class "clock-track"
-    ]
-    []
+    ] []
 
 
 drawTracks clockArms =
-  Svg.g [] (List.map (.radius >> drawTrack) clockArms)
+  Svg.g [] <|
+    List.map (.radius >> drawTrack) clockArms
 
 
 drawTrackHidingCircles delta clockArms =
@@ -79,15 +78,15 @@ drawTrackHidingCircles delta clockArms =
           , SA.cx "0"
           , SA.cy "0"
           , SA.r <| String.fromFloat armRadius
-          ]
-          []
+          ] []
         ]
 
   in
-  Svg.g [] <| List.map drawCircle clockArms
+  Svg.g [] <|
+    List.map drawCircle clockArms
 
 
-drawTicks { interval, length, radius, armRadius, angle } =
+drawTicks_ { interval, length, radius, armRadius, angle } =
   let
     drawText { cx, cy, tick } =
       let
@@ -97,15 +96,14 @@ drawTicks { interval, length, radius, armRadius, angle } =
         fontSize = String.fromFloat (0.6 * armRadius) ++ "px"
       in
       Svg.g
-        [ SA.transform <| translateTick
+        [ SA.transform translateTick
         , SA.class "clock-tick"
         ]
         [ Svg.circle
-            [ SA.cx "0"
-            , SA.cy "0"
-            , SA.r <| String.fromFloat (0.7 * armRadius)
-            ]
-            []
+          [ SA.cx "0"
+          , SA.cy "0"
+          , SA.r <| String.fromFloat (0.7 * armRadius)
+          ] []
         , Svg.text_
           [ SA.dy "0.35em"
           , SA.fontSize fontSize
@@ -126,8 +124,9 @@ drawTicks { interval, length, radius, armRadius, angle } =
   List.map drawText newRange
 
 
-drawTicks_ clockArms =
-  Svg.g [] (List.concatMap drawTicks clockArms)
+drawTicks clockArms =
+  Svg.g [] <|
+    List.concatMap drawTicks_ clockArms
 
 
 drawDot radius angle dotRadius =
@@ -170,7 +169,8 @@ drawArm delta { radius, armRadius, angle } =
       Color.stringFromHSL <|
         Color.interpolateHSL (Color.HSL 0 76.4 75.1) (Color.HSL 360 76.4 75.1) progress
 
-    ( cx, cy ) = pointOnArc 0 0 radius (Anim.animate delta angle)
+    ( cx, cy ) =
+      pointOnArc 0 0 radius (Anim.animate delta angle)
   in
   Svg.g []
     [ Svg.path
@@ -186,13 +186,13 @@ drawArm delta { radius, armRadius, angle } =
           ++ "Z"
       , SA.fill fill
       , SA.fillRule "evenodd"
-      ]
-      []
+      ] []
     ]
 
 
 drawArms delta clockArms =
-  Svg.g [] <| List.map (drawArm delta) clockArms
+  Svg.g [] <|
+    List.map (drawArm delta) clockArms
 
 
 pointOnArc : Float -> Float -> Float -> Float -> (Float, Float)
