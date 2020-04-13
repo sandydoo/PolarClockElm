@@ -7,9 +7,9 @@
 
 # Polar Clock
 
-**A colorful animated clock in polar coordinates.**
+**A colorful, animated clock in polar coordinates.**
 
-Not a very good clock, not a very good screen *saver*, but, *oh-so very pretty*.
+Not a very good clock, not a very good screen *saver*, but *oh-so very pretty*.
 
 Inspired by Mike Bostock's [Polar Clock III](https://bl.ocks.org/mbostock/c150b717e18d387e1b98) and the original, flash-based screensaver [PolarClock](https://web.archive.org/web/20190220000556/http://blog.pixelbreaker.com/polarclock) by [pixelbreaker](https://www.pixelbreaker.com/).
 
