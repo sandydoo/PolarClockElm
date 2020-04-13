@@ -16,16 +16,7 @@ body {
   stroke-width: 1px;
 }
 
-.clock-arm {
-  fill: none;
-  stroke: #000;
-  stroke-width: 1.5px;
-}
-
-.clock-tick circle {
-  fill: #222;
-}
-
+.clock-tick circle,
 circle.clock-track-hide-overflow {
   fill: #222;
 }
@@ -36,14 +27,4 @@ circle.clock-track-hide-overflow {
   /* font-size set programatically relative to the size of the clock arms*/
   fill: #d9d9d9;
   text-anchor: middle;
-}
-
-.clock-tick {
-  transition: opacity 750ms linear;
-}
-
-.clock-tick circle,
-.clock-tick text {
-  transition: fill 250ms linear;
-  transition-delay: 400ms;
 }
