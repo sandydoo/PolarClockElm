@@ -42,6 +42,7 @@ drawClock {clockArms, width, height, delta} =
       [ SA.transform <| translate
       ]
       [ SL.lazy drawTracks clockArms
+      , SL.lazy2 drawTrackHidingCircles delta clockArms
       , SL.lazy drawTicks_ clockArms
       , SL.lazy2 drawArms delta clockArms
       ]
@@ -62,7 +63,31 @@ drawTracks clockArms =
   Svg.g [] (List.map (.radius >> drawTrack) clockArms)
 
 
-drawTicks { interval, length, radius, armRadius } =
+drawTrackHidingCircles delta clockArms =
+  let
+    drawCircle { angle, armRadius, radius } =
+      let
+        ( cx, cy ) = pointOnArc 0 0 radius (Anim.animate delta angle)
+
+        translate =
+          "translate(" ++ String.fromFloat cx ++ "," ++ String.fromFloat cy ++ ")"
+      in
+      Svg.g
+        [ SA.transform translate ]
+        [ Svg.circle
+          [ SA.class "clock-track-hide-overflow"
+          , SA.cx "0"
+          , SA.cy "0"
+          , SA.r <| String.fromFloat armRadius
+          ]
+          []
+        ]
+
+  in
+  Svg.g [] <| List.map drawCircle clockArms
+
+
+drawTicks { interval, length, radius, armRadius, angle } =
   let
     drawText { cx, cy, tick } =
       let
@@ -149,29 +174,20 @@ drawArm delta { radius, armRadius, angle } =
   in
   Svg.g []
     [ Svg.path
-        [ SA.d <|
-          drawArc
-            { startAngle = -armRadius / radius
-            , endAngle = Anim.animate delta angle + (armRadius / radius)
-            , innerRadius = radius - armRadius
-            , outerRadius = radius + armRadius
-            , cornerRadius = armRadius
-            }
-            ++ drawDot radius (Anim.animate delta angle - (armRadius / radius)) (0.8 * armRadius)
-            ++ "Z"
-        , SA.fill fill
-        , SA.fillRule "evenodd"
-        ]
-        []
-    , Svg.circle
-        [ SA.class "clock-tick-hide-overflow"
-        , SA.cx <| String.fromFloat cx ++ "px"
-        , SA.cy <| String.fromFloat cy ++ "px"
-        , SA.fill "none"
-        , SA.strokeWidth <| String.fromFloat (0.3 * armRadius) ++ "px"
-        , SA.r <| String.fromFloat (0.7 * armRadius)
-        ]
-        []
+      [ SA.d <|
+        drawArc
+          { startAngle = -armRadius / radius
+          , endAngle = Anim.animate delta angle + (armRadius / radius)
+          , innerRadius = radius - armRadius
+          , outerRadius = radius + armRadius
+          , cornerRadius = armRadius
+          }
+          ++ drawDot radius (Anim.animate delta angle - (armRadius / radius)) (0.8 * armRadius)
+          ++ "Z"
+      , SA.fill fill
+      , SA.fillRule "evenodd"
+      ]
+      []
     ]
 
 

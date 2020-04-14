@@ -26,8 +26,8 @@ body {
   fill: #222;
 }
 
-circle.clock-tick-hide-overflow {
-  stroke: #222;
+circle.clock-track-hide-overflow {
+  fill: #222;
 }
 
 .clock-tick text {
