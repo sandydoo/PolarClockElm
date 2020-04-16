@@ -172,27 +172,29 @@ drawDot radius angle dotRadius =
 
 drawArm delta { radius, armRadius, angle } =
   let
+    newAngle = Anim.animate delta angle
+
     progress =
-      Anim.animate delta angle / 360
+      newAngle / 360
 
     fill =
       Color.stringFromHSL <|
         Color.interpolateHSL (Color.HSL 0 76.4 75.1) (Color.HSL 360 76.4 75.1) progress
 
     ( cx, cy ) =
-      pointOnArc 0 0 radius (Anim.animate delta angle)
+      pointOnArc 0 0 radius newAngle
   in
   Svg.g []
     [ Svg.path
       [ SA.d <|
         drawArc
           { startAngle = -armRadius / radius
-          , endAngle = Anim.animate delta angle + (armRadius / radius)
+          , endAngle = newAngle + (armRadius / radius)
           , innerRadius = radius - armRadius
           , outerRadius = radius + armRadius
           , cornerRadius = armRadius
           }
-          ++ drawDot radius (Anim.animate delta angle - (armRadius / radius)) (0.8 * armRadius)
+          ++ drawDot radius (newAngle - (armRadius / radius)) (0.8 * armRadius)
           ++ "Z"
       , SA.fill fill
       , SA.fillRule "evenodd"
