@@ -34,13 +34,13 @@ drawClock { clockArms, width, height, delta } =
       "translate(" ++ String.fromInt (width // 2) ++ "," ++ String.fromInt (height // 2) ++ ")"
   in
   Svg.svg
-    [ SA.width (String.fromInt width)
-    , SA.height (String.fromInt height)
+    [ SA.width <| String.fromInt width
+    , SA.height <| String.fromInt height
     , SA.viewBox viewbox
     ]
     [ Svg.g
       [ SA.transform translate]
-      [ SL.lazy drawTracks clockArms
+      [ SL.lazy2 drawTracks (width, height) clockArms
       , SL.lazy2 drawTrackHidingCircles delta clockArms
       , SL.lazy drawTicks clockArms
       , SL.lazy2 drawArms delta clockArms
@@ -48,18 +48,28 @@ drawClock { clockArms, width, height, delta } =
     ]
 
 
-drawTrack radius =
+drawTrack (width, height) radius =
+  let
+    size = toFloat <| min width height
+
+    strokeWidth = 0.001 * size
+  in
   Svg.circle
     [ SA.cx "0"
     , SA.cy "0"
-    , SA.r (String.fromFloat radius)
+    , SA.r <|
+        String.fromFloat radius
+    , SA.fill "none"
+    , SA.stroke "#4a5568"
+    , SA.strokeWidth <|
+        String.fromFloat strokeWidth
     , SA.class "clock-track"
     ] []
 
 
-drawTracks clockArms =
+drawTracks clockSize clockArms =
   Svg.g [] <|
-    List.map (.radius >> drawTrack) clockArms
+    List.map (.radius >> drawTrack clockSize) clockArms
 
 
 drawTrackHidingCircles delta clockArms =

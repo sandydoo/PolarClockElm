@@ -1,30 +1,21 @@
-/**
- * Styling borrowed from Mike Bostock's "Polar Clock III".
- * https://bl.ocks.org/mbostock/c150b717e18d387e1b98
- */
-
+:root {
+  --dark-blue: #1a202c;
+}
 
 body {
-  background: #222;
+  background: var(--dark-blue);
   padding: 0;
   margin: 0;
 }
 
-.clock-track {
-  fill: none;
-  stroke: #d9d9d9;
-  stroke-width: 1px;
-}
-
 .clock-tick circle,
 circle.clock-track-hide-overflow {
-  fill: #222;
+  fill: var(--dark-blue);
 }
 
 .clock-tick text {
   font-family: "Futura", "Helvetica Neue", helvetica, arial, sans-serif;
-  font-weight: 300;
   /* font-size set programatically relative to the size of the clock arms*/
-  fill: #d9d9d9;
+  fill: #edf2f7;
   text-anchor: middle;
 }
