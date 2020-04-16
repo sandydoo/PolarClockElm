@@ -13,10 +13,33 @@ Not a very good clock, not a very good screen *saver*, but *oh-so very pretty*.
 
 Inspired by Mike Bostock's [Polar Clock III](https://bl.ocks.org/mbostock/c150b717e18d387e1b98) and the original, flash-based screensaver [PolarClock](https://web.archive.org/web/20190220000556/http://blog.pixelbreaker.com/polarclock) by [pixelbreaker](https://www.pixelbreaker.com/).
 
-[See it in action →](https://polarclockelm.sandydoo.me/)
+[**See it in action →**](https://polarclockelm.sandydoo.me/)
+
+<br>
 
 
-### Historical reference
+#### Installation
+
+1. Clone the repository.
+
+   `git clone https://github.com/sandydoo/PolarClockElm.git`
+
+2. [Install elm](https://guide.elm-lang.org/install/elm.html).
+
+3. Compile the code.
+
+   * For local development:
+
+     `./compile.sh`
+
+   * For the final release:
+
+     `./compile.sh prod`
+
+<br>
+
+
+#### Historical reference
 
 The original Polar Clock by pixelbreaker.
 
