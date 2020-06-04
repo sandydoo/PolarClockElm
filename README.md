@@ -24,17 +24,19 @@ Inspired by Mike Bostock's [Polar Clock III](https://bl.ocks.org/mbostock/c150b7
 
    `git clone https://github.com/sandydoo/PolarClockElm.git`
 
-2. [Install elm](https://guide.elm-lang.org/install/elm.html).
+2. Install packages
+
+   `yarn install`
 
 3. Compile the code.
 
    * For local development:
 
-     `./compile.sh`
+     `yarn serve`
 
    * For the final release:
 
-     `./compile.sh prod`
+     `yarn build`
 
 <br>
 
