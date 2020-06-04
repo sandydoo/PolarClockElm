@@ -22,8 +22,8 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:image:alt" content="A colorful, animated clock in polar coordinates built with Elm.">
 
-    <link rel="stylesheet" href="style.css" type="text/css">
-    <link rel="preload" href="dist/clock.js" as="script">
+    <link rel="stylesheet" href="./style.css" type="text/css">
+    <link rel="preload" href="./index.js" as="script">
 
     <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
     <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
@@ -38,7 +38,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.webmanifest">
+    <meta name="msapplication-config" content="/browserconfig.xml">
     <meta name="msapplication-TileColor" content="#1a202c">
     <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
     <meta name="theme-color" content="#1a202c">
@@ -46,21 +47,6 @@
 
   <body>
     <div id="polar-clock"></div>
-
-    <script src="dist/clock.js"></script>
-
-    <script>
-      let width = window.innerWidth;
-      let height = window.innerHeight;
-
-      let app = Elm.Main.init({
-        node: document.getElementById('polar-clock'),
-        flags: {
-          currentTime: Date.now(),
-          width,
-          height
-        }
-      });
-    </script>
+    <script src="./index.js"></script>
   </body>
 </html>
