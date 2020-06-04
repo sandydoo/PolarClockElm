@@ -13,7 +13,19 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
-    - uses: actions/setup-node@v1.4.2
-    
-    - run: yarn install
-    - run: yarn deploy
+
+    - name: Set up Node
+      uses: actions/setup-node@v1.4.2
+
+    - name: Install dependencies
+      run: yarn install
+
+    - name: Build app
+      run: yarn build
+
+    - name: Deploy to Github Pages
+      run: |
+        git remote set-url origin https://git:${GITHUB_TOKEN}@github.com/sandydoo/PolarClockElm.git
+        yarn gh-pages -d dist -u "github-actions-bot <support+actions@github.com>"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,7 +1,7 @@
 {
   "scripts": {
     "serve": "yarn parcel public/index.html",
-    "build": "yarn parcel build public/index.html",
+    "build": "scripts/build.sh",
     "deploy": "scripts/deploy.sh"
   },
   "dependencies": {

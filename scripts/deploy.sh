@@ -1,12 +1,6 @@
 #!/bin/sh
 
-echo "Building app..."
-
-yarn build
-
-echo "Copying static files..."
-
-cp public/CNAME dist/
+./build.sh
 
 echo "Deploying to Github Pages..."
 
