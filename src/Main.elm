@@ -61,11 +61,12 @@ init { currentTime, width, height } =
     timezone = Time.utc
     date = Calendar.fromPosix timezone time
     datetime = { date = date, time = time }
+    clockArms = createClockArms width height datetime
   in
   ( { time = time
     , timezone = timezone
     , date = date
-    , clockArms = createClockArms width height datetime
+    , clockArms = clockArms
     , width = width
     , height = height
     , delta = 0
@@ -182,7 +183,7 @@ update msg model =
         updateAngle clockArm =
           { clockArm | angle = newAnimatedAngle clockArm }
 
-        newDatetime = { time = newTime, date = newDate }
+        newDatetime = { date = newDate, time = newTime }
 
         updateDates datetime clockArm =
           case clockArm.updateRange of
