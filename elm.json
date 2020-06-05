@@ -13,9 +13,11 @@
             "elm/svg": "1.0.1",
             "elm/time": "1.0.0",
             "elm-community/easing-functions": "2.0.0",
+            "justinmimbs/date": "3.2.0",
             "mgold/elm-animation": "2.0.0"
         },
         "indirect": {
+            "elm/parser": "1.1.0",
             "elm/url": "1.0.0",
             "elm/virtual-dom": "1.0.2"
         }
