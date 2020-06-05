@@ -35,6 +35,7 @@ main =
 type alias Model =
   { time : Time.Posix
   , timezone : Time.Zone
+  , date : Calendar.Date
   , delta : Float
   , clockArms : List ClockArm
   , width : Int
@@ -43,8 +44,9 @@ type alias Model =
 
 
 type alias ClockArm =
-  { interval : List String
+  { range : List String
   , length : Int
+  , updateRange : Maybe (Calendar.DateTime -> List String)
   , fromTime : Time.Zone -> Time.Posix -> Int
   , radius : Float
   , armRadius : Float
@@ -54,9 +56,16 @@ type alias ClockArm =
 
 init : Flags -> (Model, Cmd Msg)
 init { currentTime, width, height } =
-  ( { time = Time.millisToPosix currentTime
-    , timezone = Time.utc
-    , clockArms = createClockArms width height
+  let
+    time = Time.millisToPosix currentTime
+    timezone = Time.utc
+    date = Calendar.fromPosix timezone time
+    datetime = { date = date, time = time }
+  in
+  ( { time = time
+    , timezone = timezone
+    , date = date
+    , clockArms = createClockArms width height datetime
     , width = width
     , height = height
     , delta = 0
@@ -80,56 +89,57 @@ flagsDecoder =
     (field "height" int)
 
 
-createClockArms : Int -> Int -> List ClockArm
-createClockArms width height =
+createClockArms : Int -> Int -> Calendar.DateTime -> List ClockArm
+createClockArms width height datetime =
   let
     clockRadius = (toFloat (min width height)) / 2
     armRadius = clockRadius / 22
 
-    months = Calendar.monthsRange
-    weekdays = Calendar.weekdaysRange
-    days = Calendar.daysRange
-    hours = Calendar.hoursRange
-    minutes = Calendar.minutesRange
-    seconds = Calendar.secondsRange
+    calendar = Calendar.createDateRanges datetime
   in
-  [ { interval = months
-    , length = List.length months
+  [ { range = calendar.months
+    , length = List.length calendar.months
+    , updateRange = Nothing
     , fromTime = Calendar.toMonth
     , radius = 0.2 * clockRadius
     , armRadius = armRadius
     , angle = Anim.static 0
     }
-  , { interval = weekdays
-    , length = List.length weekdays
+  , { range = calendar.weekdays
+    , length = List.length calendar.weekdays
+    , updateRange = Nothing
     , fromTime = Calendar.toWeekday
     , radius = 0.31 * clockRadius
     , armRadius = armRadius
     , angle = Anim.static 0
     }
-  , { interval = days
-    , length = List.length days
+  , { range = calendar.days
+    , length = List.length calendar.days
+    , updateRange = Just Calendar.daysRange
     , fromTime = Calendar.toDay
     , radius = 0.42 * clockRadius
     , armRadius = armRadius
     , angle = Anim.static 0
     }
-  , { interval = hours
-    , length = List.length hours
+  , { range = calendar.hours
+    , length = List.length calendar.hours
+    , updateRange = Nothing
     , fromTime = Time.toHour
     , radius = 0.6 * clockRadius
     , armRadius = armRadius
     , angle = Anim.static 0
     }
-  , { interval = minutes
-    , length = List.length minutes
+  , { range = calendar.minutes
+    , length = List.length calendar.minutes
+    , updateRange = Nothing
     , fromTime = Time.toMinute
     , radius = 0.71 * clockRadius
     , armRadius = armRadius
     , angle = Anim.static 0
     }
-  , { interval = seconds
-    , length = List.length seconds
+  , { range = calendar.seconds
+    , length = List.length calendar.seconds
+    , updateRange = Nothing
     , fromTime = Time.toSecond
     , radius = 0.82 * clockRadius
     , armRadius = armRadius
@@ -158,6 +168,8 @@ update msg model =
 
     UpdateTime newTime ->
       let
+        newDate = Calendar.fromPosix model.timezone newTime
+
         newAnimatedAngle { angle, length, fromTime } =
           let
             newAngle =
@@ -170,10 +182,23 @@ update msg model =
         updateAngle clockArm =
           { clockArm | angle = newAnimatedAngle clockArm }
 
+        newDatetime = { time = newTime, date = newDate }
+
+        updateDates datetime clockArm =
+          case clockArm.updateRange of
+            Nothing -> clockArm
+
+            Just updateRange ->
+              let
+                newRange = updateRange datetime
+                newLength = List.length newRange
+              in
+              { clockArm | range = newRange, length = newLength }
+
         newClockArms =
-          List.map updateAngle model.clockArms
+          List.map (updateDates newDatetime >> updateAngle) model.clockArms
       in
-      ( { model | time = newTime, clockArms = newClockArms }
+      ( { model | time = newTime, date = newDate, clockArms = newClockArms }
       , Cmd.none
       )
 

@@ -96,7 +96,7 @@ drawTrackHidingCircles delta clockArms =
     List.map drawCircle clockArms
 
 
-drawTicks_ { interval, length, radius, armRadius, angle } =
+drawTicks_ { range, length, radius, armRadius, angle } =
   let
     drawText { cx, cy, tick } =
       let
@@ -129,7 +129,7 @@ drawTicks_ { interval, length, radius, armRadius, angle } =
       { tick = tick, cx = cx, cy = cy }
 
     newRange =
-      List.indexedMap positionTicksOnArc interval
+      List.indexedMap positionTicksOnArc range
   in
   List.map drawText newRange
 

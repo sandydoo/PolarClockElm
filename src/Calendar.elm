@@ -8,11 +8,49 @@ module Calendar exposing
   , toMonth
   , toWeekday
   , toDay
+  , fromPosix
+  , createDateRanges
+  , Date
+  , DateTime
   )
 
 
 import Time exposing (Month(..), Weekday(..))
+import Date exposing (Interval(..), Unit(..))
 
+
+
+type alias Date = Date.Date
+
+
+fromPosix = Date.fromPosix
+
+
+type alias DateTime =
+  { date : Date.Date
+  , time : Time.Posix
+  }
+
+
+type alias Ranges =
+  { months : List String
+  , weekdays : List String
+  , days : List String
+  , hours : List String
+  , minutes : List String
+  , seconds : List String
+  }
+
+
+createDateRanges : DateTime -> Ranges
+createDateRanges datetime =
+  { months = monthsRange
+  , weekdays = weekdaysRange
+  , days = daysRange datetime
+  , hours = hoursRange
+  , minutes = minutesRange
+  , seconds = secondsRange
+  }
 
 
 monthToNumber : Month -> Int
@@ -138,8 +176,16 @@ hoursRange : List String
 hoursRange = List.map String.fromInt (List.range 0 23)
 
 
-daysRange : List String
-daysRange = List.map String.fromInt (List.range 1 31)
+daysRange : DateTime -> List String
+daysRange { date } =
+  let
+    year = Date.year date
+    month = Date.month date
+
+    start = Date.fromCalendarDate year month 1
+    until = start |> Date.add Months 1
+  in
+  List.map (Date.day >> String.fromInt) (Date.range Day 1 start until)
 
 
 weekdaysRange : List String
