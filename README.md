@@ -1,7 +1,7 @@
 <div>
-    <a href="https://polarclockelm.sandydoo.me/">
-        <img src="media/polar-clock.gif" alt="Polar Clock" width="100%">
-    </a>
+  <a href="https://polarclockelm.sandydoo.me/">
+    <img src="media/polar-clock-redux.gif" alt="An animated clock in polar coordinates" width="100%">
+  </a>
 </div>
 
 
@@ -22,21 +22,29 @@ Inspired by Mike Bostock's [Polar Clock III](https://bl.ocks.org/mbostock/c150b7
 
 1. Clone the repository.
 
-   `git clone https://github.com/sandydoo/PolarClockElm.git`
+   ```bash
+   git clone https://github.com/sandydoo/PolarClockElm.git
+   ```
 
-2. Install packages
+2. Install packages.
 
-   `yarn install`
+   ```bash
+   yarn install
+   ```
 
 3. Compile the code.
 
    * For local development:
 
-     `yarn serve`
+     ```bash
+     yarn serve
+     ```
 
    * For the final release:
 
-     `yarn build`
+     ```bash
+     yarn build
+     ```
 
 <br>
 
