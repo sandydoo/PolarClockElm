@@ -1,6 +1,6 @@
 #!/bin/sh
 
-./build.sh
+scripts/build.sh
 
 echo "Deploying to Github Pages..."
 
