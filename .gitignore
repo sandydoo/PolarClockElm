@@ -6,6 +6,9 @@ node_modules
 # Build
 dist
 
+# Parcel
+.parcel-cache
+
 # Yarn v2
 .yarn/*
 !.yarn/cache
