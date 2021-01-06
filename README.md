@@ -7,7 +7,7 @@
 
 # Polar Clock
 
-**A colorful, animated clock in polar coordinates.**
+**A colorful animated polar clock in the browser. Built with Elm and inspired by an infamous screensaver.**
 
 Not a very good clock, not a very good screen *saver*, but *oh-so very pretty*.
 
