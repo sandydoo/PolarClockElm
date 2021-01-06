@@ -1312,6 +1312,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"PolarClockElm@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "PolarClockElm@workspace:."
+  dependencies:
+    elm: ^0.19.1-3
+    elm-hot: ^1.1.4
+    gh-pages: ^3.0.0
+    node-elm-compiler: ^5.0.4
+    parcel-bundler: ^1.12.4
+    parcel-plugin-browserconfig: ^1.0.5
+  languageName: unknown
+  linkType: soft
+
 "abab@npm:^2.0.0":
   version: 2.0.4
   resolution: "abab@npm:2.0.4"
@@ -6280,19 +6293,6 @@ fsevents@^1.2.7:
   checksum: e0370fbe779b1f15d74c3e7dffc0ce40b57b845fc7e431fab8a571958d5fd9c91eb0038a252604600e20786d117badea0cc4cf8816b8a6be6b9166b565ad6797
   languageName: node
   linkType: hard
-
-"root-workspace-0b6124@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "root-workspace-0b6124@workspace:."
-  dependencies:
-    elm: ^0.19.1-3
-    elm-hot: ^1.1.4
-    gh-pages: ^3.0.0
-    node-elm-compiler: ^5.0.4
-    parcel-bundler: ^1.12.4
-    parcel-plugin-browserconfig: ^1.0.5
-  languageName: unknown
-  linkType: soft
 
 "safe-buffer@npm:^5.0.1, safe-buffer@npm:^5.1.0, safe-buffer@npm:^5.1.1, safe-buffer@npm:^5.1.2, safe-buffer@npm:^5.2.0, safe-buffer@npm:~5.2.0":
   version: 5.2.1

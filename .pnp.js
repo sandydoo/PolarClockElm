@@ -19,14 +19,14 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
     ],
     "dependencyTreeRoots": [
       {
-        "name": "root-workspace-0b6124",
+        "name": "PolarClockElm",
         "reference": "workspace:."
       }
     ],
     "enableTopLevelFallback": true,
     "ignorePatternData": "(^(?:\\.yarn\\/sdks(?:\\/(?!\\.)(?:(?:(?!(?:^|\\/)\\.).)*?)|$))$)",
     "fallbackExclusionList": [
-      ["root-workspace-0b6124", ["workspace:."]]
+      ["PolarClockElm", ["workspace:."]]
     ],
     "fallbackPool": [
     ],
@@ -2191,6 +2191,21 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@types/q", "npm:1.5.4"]
           ],
           "linkType": "HARD",
+        }]
+      ]],
+      ["PolarClockElm", [
+        ["workspace:.", {
+          "packageLocation": "./",
+          "packageDependencies": [
+            ["PolarClockElm", "workspace:."],
+            ["elm", "npm:0.19.1-3"],
+            ["elm-hot", "npm:1.1.5"],
+            ["gh-pages", "npm:3.1.0"],
+            ["node-elm-compiler", "npm:5.0.5"],
+            ["parcel-bundler", "npm:1.12.4"],
+            ["parcel-plugin-browserconfig", "npm:1.0.5"]
+          ],
+          "linkType": "SOFT",
         }]
       ]],
       ["abab", [
@@ -7761,21 +7776,6 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["inherits", "npm:2.0.4"]
           ],
           "linkType": "HARD",
-        }]
-      ]],
-      ["root-workspace-0b6124", [
-        ["workspace:.", {
-          "packageLocation": "./",
-          "packageDependencies": [
-            ["root-workspace-0b6124", "workspace:."],
-            ["elm", "npm:0.19.1-3"],
-            ["elm-hot", "npm:1.1.5"],
-            ["gh-pages", "npm:3.1.0"],
-            ["node-elm-compiler", "npm:5.0.5"],
-            ["parcel-bundler", "npm:1.12.4"],
-            ["parcel-plugin-browserconfig", "npm:1.0.5"]
-          ],
-          "linkType": "SOFT",
         }]
       ]],
       ["safe-buffer", [
