@@ -1,4 +1,21 @@
 {
+  "name": "PolarClockElm",
+  "description": "A colorful animated polar clock in the browser. Built with Elm and inspired by an infamous screensaver.",
+  "keywords": [
+    "elm",
+    "animation",
+    "polar-clock",
+    "clock",
+    "screensaver"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/sandydoo/PolarClockElm"
+  },
+  "license": "BSD-3-Clause",
+  "author": "Sander Melnikov <hey@sandydoo.me>",
+  "homepage": "https://polarclockelm.sandydoo.me/",
+  "private": true,
   "scripts": {
     "serve": "yarn parcel public/index.html",
     "build": "scripts/build.sh",
