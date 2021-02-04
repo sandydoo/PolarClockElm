@@ -7,6 +7,11 @@ body {
   padding: 0;
   margin: 0;
   overflow: hidden;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern", "liga";
 }
 
 .clock-tick circle,
@@ -16,7 +21,8 @@ circle.clock-track-hide-overflow {
 
 .clock-tick text {
   font-family: "Futura", "Helvetica Neue", helvetica, arial, sans-serif;
-  /* font-size set programatically relative to the size of the clock arms*/
+  letter-spacing: -0.03em;
+  /* The font-size is set programatically, relative to the size of the clock arms. */
   fill: #edf2f7;
   text-anchor: middle;
 }
