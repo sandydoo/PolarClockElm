@@ -1,6 +1,7 @@
 :root {
   --background-color: #1a202c;
   --foreground-color: #edf2f7;
+  --secondary-color: #bdc1c5;
 }
 
 * {
@@ -40,7 +41,7 @@ circle.clock-track-hide-overflow {
 a,
 a:hover,
 a:visited {
-  color: var(--foreground-color);
+  color: inherit;
 }
 
 footer {
@@ -49,6 +50,7 @@ footer {
   left: 0;
   padding: 2em;
   font-size: 1.1em;
+  color: var(--secondary-color);
 }
 
 @media (max-width: 39em) {
