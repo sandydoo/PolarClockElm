@@ -29,13 +29,15 @@ interpolateHSL (HSL hue1 sat1 lum1) (HSL hue2 sat2 lum2) time =
 interpolateHue : Hue -> Hue -> Float -> Hue
 interpolateHue a b =
   let
-    difference = b - a
+    d =
+      if b > a && b - a > 180 then
+        b - a + 360
+      else if b < a && a - b > 180 then
+        b + 360 - a
+      else
+        b - a
   in
-  if difference == 0 then
-    constant a
-
-  else
-    linear a difference
+  linear a d
 
 
 interpolateFloat : Float -> Float -> Float -> Float
