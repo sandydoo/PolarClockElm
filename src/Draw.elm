@@ -25,35 +25,24 @@ type alias Arc =
   }
 
 
-drawClock { clockArms, width, height, delta } =
-  let
-    viewbox =
-      "0 0 " ++ String.fromInt width ++ " " ++ String.fromInt height
-
-    translate =
-      "translate(" ++ String.fromInt (width // 2) ++ "," ++ String.fromInt (height // 2) ++ ")"
-  in
+drawClock { clockArms, dimensions, delta } =
   Svg.svg
-    [ SA.width <| String.fromInt width
-    , SA.height <| String.fromInt height
-    , SA.viewBox viewbox
+    [ SA.width  <| String.fromInt dimensions.width
+    , SA.height <| String.fromInt dimensions.height
+    , SA.viewBox "0 0 1000 1000"
+    , SA.preserveAspectRatio "xMidYMid meet"
     ]
     [ Svg.g
-      [ SA.transform translate]
-      [ SL.lazy2 drawTracks (width, height) clockArms
+      [ SA.transform "translate(500, 500)" ]
+      [ SL.lazy  drawTracks clockArms
       , SL.lazy2 drawTrackHidingCircles delta clockArms
-      , SL.lazy drawTicks clockArms
+      , SL.lazy  drawTicks clockArms
       , SL.lazy2 drawArms delta clockArms
       ]
     ]
 
 
-drawTrack (width, height) radius =
-  let
-    size = toFloat <| min width height
-
-    strokeWidth = 0.001 * size
-  in
+drawTrack radius =
   Svg.circle
     [ SA.cx "0"
     , SA.cy "0"
@@ -61,15 +50,14 @@ drawTrack (width, height) radius =
         String.fromFloat radius
     , SA.fill "none"
     , SA.stroke "#4a5568"
-    , SA.strokeWidth <|
-        String.fromFloat strokeWidth
+    , SA.strokeWidth "1"
     , SA.class "clock-track"
     ] []
 
 
-drawTracks clockSize clockArms =
+drawTracks clockArms =
   Svg.g [] <|
-    List.map (.radius >> drawTrack clockSize) clockArms
+    List.map (.radius >> drawTrack) clockArms
 
 
 drawTrackHidingCircles delta clockArms =

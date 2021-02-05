@@ -3,9 +3,9 @@ module Main exposing (..)
 
 import Animation as Anim
 import Browser
-import Browser.Events exposing (onAnimationFrameDelta)
+import Browser.Events as Event
 import Ease exposing (outQuart)
-import Json.Decode exposing (Decoder, field, int, map3)
+import Json.Decode exposing (Decoder, field, int, map2)
 import Html exposing (Html)
 import Html.Attributes
 import Task
@@ -32,14 +32,19 @@ main =
 -- Model
 
 
+type alias Dimensions =
+  { width : Int
+  , height : Int
+  }
+
+
 type alias Model =
   { time : Time.Posix
   , timezone : Time.Zone
   , date : Calendar.Date
   , delta : Float
   , clockArms : List ClockArm
-  , width : Int
-  , height : Int
+  , dimensions : Dimensions
   }
 
 
@@ -55,20 +60,19 @@ type alias ClockArm =
 
 
 init : Flags -> (Model, Cmd Msg)
-init { currentTime, width, height } =
+init { currentTime, dimensions } =
   let
     time = Time.millisToPosix currentTime
     timezone = Time.utc
     date = Calendar.fromPosix timezone time
     datetime = { date = date, time = time }
-    clockArms = createClockArms width height datetime
+    clockArms = createClockArms datetime
   in
   ( { time = time
     , timezone = timezone
     , date = date
     , clockArms = clockArms
-    , width = width
-    , height = height
+    , dimensions = dimensions
     , delta = 0
     }
   , Task.perform UpdateTimeZone Time.here
@@ -77,32 +81,35 @@ init { currentTime, width, height } =
 
 type alias Flags =
   { currentTime : Int
-  , width : Int
-  , height : Int
+  , dimensions: Dimensions
   }
 
 
 flagsDecoder : Decoder Flags
 flagsDecoder =
-  map3 Flags
-    (field "currentTime" int)
-    (field "width" int)
-    (field "height" int)
-
-
-createClockArms : Int -> Int -> Calendar.DateTime -> List ClockArm
-createClockArms width height datetime =
   let
-    clockRadius = (toFloat (min width height)) / 2
-    armRadius = clockRadius / 22
+    dimensionsDecoder : Decoder Dimensions
+    dimensionsDecoder =
+      map2 Dimensions
+        (field "width" int)
+        (field "height" int)
+  in
+  map2 Flags
+    (field "currentTime" int)
+    (field "dimensions" dimensionsDecoder)
 
+
+createClockArms : Calendar.DateTime -> List ClockArm
+createClockArms datetime =
+  let
     calendar = Calendar.createDateRanges datetime
+    armRadius = 23
   in
   [ { range = calendar.months
     , length = List.length calendar.months
     , updateRange = Nothing
     , fromTime = Calendar.toMonth
-    , radius = 0.2 * clockRadius
+    , radius = 100
     , armRadius = armRadius
     , angle = Anim.static 0
     }
@@ -110,7 +117,7 @@ createClockArms width height datetime =
     , length = List.length calendar.weekdays
     , updateRange = Nothing
     , fromTime = Calendar.toWeekday
-    , radius = 0.31 * clockRadius
+    , radius = 155
     , armRadius = armRadius
     , angle = Anim.static 0
     }
@@ -118,7 +125,7 @@ createClockArms width height datetime =
     , length = List.length calendar.days
     , updateRange = Just Calendar.daysRange
     , fromTime = Calendar.toDay
-    , radius = 0.42 * clockRadius
+    , radius = 210
     , armRadius = armRadius
     , angle = Anim.static 0
     }
@@ -126,7 +133,7 @@ createClockArms width height datetime =
     , length = List.length calendar.hours
     , updateRange = Nothing
     , fromTime = Time.toHour
-    , radius = 0.6 * clockRadius
+    , radius = 300
     , armRadius = armRadius
     , angle = Anim.static 0
     }
@@ -134,7 +141,7 @@ createClockArms width height datetime =
     , length = List.length calendar.minutes
     , updateRange = Nothing
     , fromTime = Time.toMinute
-    , radius = 0.71 * clockRadius
+    , radius = 355
     , armRadius = armRadius
     , angle = Anim.static 0
     }
@@ -142,7 +149,7 @@ createClockArms width height datetime =
     , length = List.length calendar.seconds
     , updateRange = Nothing
     , fromTime = Time.toSecond
-    , radius = 0.82 * clockRadius
+    , radius = 410
     , armRadius = armRadius
     , angle = Anim.static 0
     }
@@ -157,6 +164,7 @@ type Msg
   = UpdateTime Time.Posix
   | UpdateTimeZone Time.Zone
   | Animate Float
+  | Resize Dimensions
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -208,6 +216,10 @@ update msg model =
       , Cmd.none
       )
 
+    Resize newDimensions ->
+      ( { model | dimensions = newDimensions }
+      , Cmd.none)
+
 
 
 -- Subscriptions
@@ -217,7 +229,8 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
   Sub.batch
     [ Time.every 1000 UpdateTime
-    , onAnimationFrameDelta Animate
+    , Event.onAnimationFrameDelta Animate
+    , Event.onResize (\width height -> Resize (Dimensions width height))
     ]
 
 
