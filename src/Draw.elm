@@ -167,7 +167,7 @@ drawArm delta { radius, armRadius, angle } =
 
     fill =
       Color.stringFromHSL <|
-        Color.interpolateHSL (Color.HSL 0 76.4 75.1) (Color.HSL 360 76.4 75.1) progress
+        Color.interpolateHSL (Color.HSL 338.4 84 80) (Color.HSL 61.2 80 85) progress
 
     ( cx, cy ) =
       pointOnArc 0 0 radius newAngle
