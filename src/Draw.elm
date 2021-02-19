@@ -2,10 +2,14 @@ module Draw exposing (..)
 
 
 import Animation as Anim
-import Color
 import Svg
 import Svg.Attributes as SA
 import Svg.Lazy as SL
+
+import Color.Rgb as Rgb
+import Color.Lab exposing (Lab)
+import Color.Lab as Lab
+import Color.Interpolate as Interpolate
 
 
 
@@ -158,6 +162,13 @@ drawDot radius angle dotRadius =
     ]
 
 
+colorFill : Float -> Lab
+colorFill =
+  Lab.interpolate
+    ( Lab.fromRgb { r = 252, g = 222, b = 156 } )
+    ( Lab.fromRgb { r = 251, g = 183, b = 192 } )
+
+
 drawArm delta { radius, armRadius, angle } =
   let
     newAngle = Anim.animate delta angle
@@ -166,8 +177,7 @@ drawArm delta { radius, armRadius, angle } =
       newAngle / 360
 
     fill =
-      Color.stringFromHSL <|
-        Color.interpolateHSL (Color.HSL 338.4 84 80) (Color.HSL 61.2 80 85) progress
+      ( Lab.toRgb >> Rgb.toString ) <| colorFill progress
 
     ( cx, cy ) =
       pointOnArc 0 0 radius newAngle
