@@ -1,6 +1,11 @@
 module Color.Interpolate exposing (..)
 
 
+import Cons
+import Cons exposing (Cons(..))
+import Array
+
+
 
 constant : a -> t -> a
 constant a _ = a
@@ -28,3 +33,57 @@ hue a b =
         b - a
   in
   linear a d
+
+
+scaleProgress : Int -> Float -> ( Int, Int, Float )
+scaleProgress max time =
+  let
+    position = time * toFloat (max - 1)
+
+    bottom = floor position
+
+    ( from, to ) =
+      if bottom == max then
+        ( bottom - 1, bottom )
+
+      else
+        ( bottom, bottom + 1 )
+
+    intermediateProgress = position - ( toFloat from )
+  in
+  ( from, to, intermediateProgress )
+
+
+takeTwoOr : a -> List a -> ( a, a )
+takeTwoOr fallback list =
+  case list of
+    [] ->
+      ( fallback, fallback )
+
+    [ a ] ->
+      ( a, a )
+
+    (a :: b :: _) ->
+      ( a, b )
+
+
+listOf : (color -> color -> Float -> color) -> Cons color -> (Float -> color)
+listOf interpolate (Cons baseColor colorsL) =
+  let
+    colors = Array.fromList (baseColor :: colorsL)
+    count  = Array.length colors
+
+    toCurrentProgress = scaleProgress count
+
+    listOfHelper : Float -> color
+    listOfHelper totalProgress =
+      let
+        ( from, to, progress ) = toCurrentProgress totalProgress
+
+        ( color1, color2 ) =
+          takeTwoOr baseColor << Array.toList <|
+            Array.slice from (to + 1) colors
+      in
+        interpolate color1 color2 progress
+  in
+    listOfHelper
