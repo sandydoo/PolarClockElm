@@ -16,8 +16,7 @@ import Color.Interpolate as Interpolate
 -- Constants
 
 tau = 2 * pi
-epsilon = 1.0e-6
-tauEpsilon = tau - epsilon
+
 
 
 type alias Arc =
