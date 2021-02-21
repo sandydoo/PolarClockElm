@@ -5,20 +5,8 @@ import Color.Interpolate as Interpolate
 
 
 
-type alias Hue =
-  Float
-
-
-type alias Saturation =
-  Float
-
-
-type alias Luminosity =
-  Float
-
-
-type HSL =
-  HSL Hue Saturation Luminosity
+type alias HSL =
+  { h : Float, s : Float, l : Float }
 
 
 
@@ -26,16 +14,18 @@ type HSL =
 
 
 interpolate : HSL -> HSL -> Float -> HSL
-interpolate (HSL hue1 sat1 lum1) (HSL hue2 sat2 lum2) time =
-  HSL
-    ( Interpolate.hue   hue1 hue2 time )
-    ( Interpolate.float sat1 sat2 time )
-    ( Interpolate.float lum1 lum2 time )
-
+interpolate hsl1 hsl2 time =
+  { h = Interpolate.hue   hsl1.h hsl2.h time
+  , s = Interpolate.float hsl1.s hsl2.s time
+  , l = Interpolate.float hsl1.l hsl2.l time
+  }
 
 
 -- Serialize
 
 
-toString (HSL hue sat lum) =
-  "hsl(" ++ String.fromFloat hue ++ ", " ++ String.fromFloat sat ++ "%, " ++ String.fromFloat lum ++ "%)"
+toString { h, s, l}
+  = "hsl("
+  ++ String.fromFloat h ++ ", "
+  ++ String.fromFloat s ++ "%, "
+  ++ String.fromFloat l ++ "%)"
