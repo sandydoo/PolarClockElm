@@ -1,4 +1,4 @@
-module Color.HSL exposing (..)
+module Color.Hsl exposing (..)
 
 
 import Color.Interpolate as Interpolate
