@@ -6,7 +6,7 @@ import Color.Rgb exposing (RGB)
 
 
 type alias XYZ =
-  { x: Float, y: Float, z: Float }
+  { x : Float, y : Float, z : Float }
 
 
 fromRgb : RGB -> XYZ

@@ -6,7 +6,7 @@ import Color.Interpolate as Interpolate
 
 
 type alias RGB =
-  { r: Float, g: Float, b: Float }
+  { r : Float, g : Float, b : Float }
 
 
 

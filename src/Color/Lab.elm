@@ -18,7 +18,7 @@ zRef = 108.883
 
 
 type alias Lab =
-  { l: Float, a: Float, b: Float }
+  { l : Float, a : Float, b : Float }
 
 
 fromRgb : RGB -> Lab
