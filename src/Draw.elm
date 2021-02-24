@@ -221,43 +221,43 @@ drawArc { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
     cy = 0
 
     deltaAngle =
-      abs (endAngle - startAngle)
+      abs ( endAngle - startAngle )
 
     radius =
-      (outerRadius + innerRadius) / 2
+      ( outerRadius + innerRadius ) / 2
 
     width =
       outerRadius - innerRadius
 
     corner =
-      min (width / 2) cornerRadius
+      min ( width / 2 ) cornerRadius
 
-    ( oStartX, oStartY ) =
+    ( outerStartX, outerStartY ) =
       pointOnArc cx cy outerRadius startAngle
 
-    ( oEndX, oEndY ) =
+    ( outerEndX, outerEndY ) =
       pointOnArc cx cy outerRadius endAngle
 
-    ( iStartX, iStartY ) =
+    ( innerStartX, innerStartY ) =
       pointOnArc cx cy innerRadius startAngle
 
-    ( iEndX, iEndY ) =
+    ( innerEndX, innerEndY ) =
       pointOnArc cx cy innerRadius endAngle
 
     cornerDeltaAngle =
-      360 * (corner / (tau * radius))
+      360 * ( corner / ( tau * radius ) )
 
-    ( iArcStartX, iArcStartY ) =
-      pointOnArc cx cy radius (startAngle - cornerDeltaAngle)
+    ( innerArcStartX, innerArcStartY ) =
+      pointOnArc cx cy radius ( startAngle - cornerDeltaAngle )
 
-    ( iArcEndX, iArcEndY ) =
-      pointOnArc cx cy radius (endAngle + cornerDeltaAngle)
+    ( innerArcEndX, innerArcEndY ) =
+      pointOnArc cx cy radius ( endAngle + cornerDeltaAngle )
 
-    ( oArcStartX, oArcStartY ) =
-      pointOnArc cx cy radius (startAngle - cornerDeltaAngle)
+    ( outerArcStartX, outerArcStartY ) =
+      pointOnArc cx cy radius ( startAngle - cornerDeltaAngle )
 
-    ( oArcEndX, oArcEndY ) =
-      pointOnArc cx cy radius (endAngle + cornerDeltaAngle)
+    ( outerArcEndX, outerArcEndY ) =
+      pointOnArc cx cy radius ( endAngle + cornerDeltaAngle )
 
     arcSweep =
       if deltaAngle > 180 then
@@ -266,109 +266,109 @@ drawArc { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
       else
         0
   in
-  if (deltaAngle + 2 * cornerDeltaAngle) > (360 - 1.0e-6) then
+  if ( deltaAngle + 2 * cornerDeltaAngle ) > ( 360 - 1.0e-6 ) then
     let
-      ( oHalfX, oHalfY ) =
-        pointOnArc cx cy outerRadius (startAngle + 180)
+      ( outerHalfX, outerHalfY ) =
+        pointOnArc cx cy outerRadius ( startAngle + 180 )
 
-      ( iHalfX, iHalfY ) =
-        pointOnArc cx cy innerRadius (startAngle + 180)
+      ( innerHalfX, innerHalfY ) =
+        pointOnArc cx cy innerRadius ( startAngle + 180 )
     in
     String.join " "
       [ "M"
-      , String.fromFloat oStartX
-      , String.fromFloat oStartY
+      , String.fromFloat outerStartX
+      , String.fromFloat outerStartY
       , "A"
       , String.fromFloat outerRadius
       , String.fromFloat outerRadius
       , "0"
       , "1"
       , "0"
-      , String.fromFloat oHalfX
-      , String.fromFloat oHalfY
+      , String.fromFloat outerHalfX
+      , String.fromFloat outerHalfY
       , "A"
       , String.fromFloat outerRadius
       , String.fromFloat outerRadius
       , "0"
       , "1"
       , "0"
-      , String.fromFloat oStartX
-      , String.fromFloat oStartY
+      , String.fromFloat outerStartX
+      , String.fromFloat outerStartY
       , "M"
-      , String.fromFloat iStartX
-      , String.fromFloat iStartY
+      , String.fromFloat innerStartX
+      , String.fromFloat innerStartY
       , "A"
       , String.fromFloat innerRadius
       , String.fromFloat innerRadius
       , "0"
       , "1"
       , "0"
-      , String.fromFloat iHalfX
-      , String.fromFloat iHalfY
+      , String.fromFloat innerHalfX
+      , String.fromFloat innerHalfY
       , "A"
       , String.fromFloat innerRadius
       , String.fromFloat innerRadius
       , "0"
       , "1"
       , "0"
-      , String.fromFloat iStartX
-      , String.fromFloat iStartY
+      , String.fromFloat innerStartX
+      , String.fromFloat innerStartY
       ]
 
   else
     String.join " "
       [ "M"
-      , String.fromFloat oArcStartX
-      , String.fromFloat oArcStartY
+      , String.fromFloat outerArcStartX
+      , String.fromFloat outerArcStartY
       , "A"
       , String.fromFloat corner
       , String.fromFloat corner
       , "0"
       , "0"
       , "1"
-      , String.fromFloat oStartX
-      , String.fromFloat oStartY
+      , String.fromFloat outerStartX
+      , String.fromFloat outerStartY
       , "A"
       , String.fromFloat outerRadius
       , String.fromFloat outerRadius
       , "0"
       , String.fromFloat arcSweep
       , "1"
-      , String.fromFloat oEndX
-      , String.fromFloat oEndY
+      , String.fromFloat outerEndX
+      , String.fromFloat outerEndY
       , "A"
       , String.fromFloat corner
       , String.fromFloat corner
       , "0"
       , "0"
       , "1"
-      , String.fromFloat oArcEndX
-      , String.fromFloat oArcEndY
+      , String.fromFloat outerArcEndX
+      , String.fromFloat outerArcEndY
       , "L"
-      , String.fromFloat iArcEndX
-      , String.fromFloat iArcEndY
+      , String.fromFloat innerArcEndX
+      , String.fromFloat innerArcEndY
       , "A"
       , String.fromFloat corner
       , String.fromFloat corner
       , "0"
       , "0"
       , "1"
-      , String.fromFloat iEndX
-      , String.fromFloat iEndY
+      , String.fromFloat innerEndX
+      , String.fromFloat innerEndY
       , "A"
       , String.fromFloat innerRadius
       , String.fromFloat innerRadius
       , "0"
       , String.fromFloat arcSweep
       , "0"
-      , String.fromFloat iStartX
-      , String.fromFloat iStartY
+      , String.fromFloat innerStartX
+      , String.fromFloat innerStartY
       , "A"
       , String.fromFloat corner
       , String.fromFloat corner
       , "0"
       , "0"
       , "1"
-      , String.fromFloat iArcStartX
-      , String.fromFloat iArcStartY
+      , String.fromFloat innerArcStartX
+      , String.fromFloat innerArcStartY
       ]
