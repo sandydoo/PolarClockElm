@@ -4,7 +4,7 @@ module Main exposing (..)
 import Animation as Anim
 import Browser
 import Browser.Events as Event
-import Json.Decode exposing ( Decoder, field, int, map2 )
+import Json.Decode as Decode exposing ( Decoder )
 import Html exposing ( Html )
 import Html.Attributes
 import Task
@@ -54,12 +54,12 @@ type alias Flags =
 
 flagsDecoder : Decoder Flags
 flagsDecoder =
-  map2 Flags
-    ( field "currentTime" int )
-    ( field "dimensions" <|
-        map2 Window.Dimensions
-          ( field "width"  int )
-          ( field "height" int )
+  Decode.map2 Flags
+    ( Decode.field "currentTime" Decode.int )
+    ( Decode.field "dimensions" <|
+        Decode.map2 Window.Dimensions
+          ( Decode.field "width"  Decode.int )
+          ( Decode.field "height" Decode.int )
     )
 
 
