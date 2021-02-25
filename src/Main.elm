@@ -139,8 +139,7 @@ subscriptions model =
   Sub.batch
     [ Time.every 1000 UpdateTime
     , Event.onAnimationFrameDelta Animate
-    , Event.onResize
-        ( \width height -> Resize { width = width, height = height } )
+    , Window.onResize Resize
     ]
 
 
