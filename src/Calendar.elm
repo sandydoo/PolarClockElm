@@ -1,56 +1,50 @@
 module Calendar exposing
-  ( secondsRange
+  ( Unit(..)
+  , Date
+  , DateTime(..)
+  , fromPosix
+  , toDatetime
+  , toPart
+  , toMonth
+  , toWeekday
+  , toDay
+  , range
+  , secondsRange
   , minutesRange
   , hoursRange
   , daysRange
   , weekdaysRange
   , monthsRange
-  , toMonth
-  , toWeekday
-  , toDay
-  , fromPosix
-  , createDateRanges
-  , Date
-  , DateTime
   )
 
 
-import Time exposing (Month(..), Weekday(..))
-import Date exposing (Interval(..), Unit(..))
+import Time exposing ( Month(..), Weekday(..) )
+import Date exposing ( Interval(..) )
 
 
 
 type alias Date = Date.Date
 
 
+type Unit
+  = Months
+  | Weekdays
+  | Days
+  | Hours
+  | Minutes
+  | Seconds
+
+
 fromPosix = Date.fromPosix
 
 
-type alias DateTime =
-  { date : Date.Date
-  , time : Time.Posix
-  }
+type DateTime = DateTime Date.Date Time.Zone Time.Posix
 
 
-type alias Ranges =
-  { months : List String
-  , weekdays : List String
-  , days : List String
-  , hours : List String
-  , minutes : List String
-  , seconds : List String
-  }
+toDatetime : Time.Zone -> Time.Posix -> DateTime
+toDatetime zone time =
+  DateTime ( fromPosix zone time ) zone time
 
-
-createDateRanges : DateTime -> Ranges
-createDateRanges datetime =
-  { months = monthsRange
-  , weekdays = weekdaysRange
-  , days = daysRange datetime
-  , hours = hoursRange
-  , minutes = minutesRange
-  , seconds = secondsRange
-  }
 
 
 monthToNumber : Month -> Int
@@ -140,6 +134,32 @@ numberToWeekday n =
     _ -> Sun
 
 
+
+-- Extract parts from dates
+
+
+toPart : Unit -> DateTime -> Int
+toPart unit ( DateTime _ zone time ) =
+  case unit of
+    Months ->
+      toMonth zone time
+
+    Weekdays ->
+      toWeekday zone time
+
+    Days ->
+      toDay zone time
+
+    Hours ->
+      Time.toHour zone time
+
+    Minutes ->
+      Time.toMinute zone time
+
+    Seconds ->
+      Time.toSecond zone time
+
+
 toWeekday : Time.Zone -> Time.Posix -> Int
 toWeekday zone time =
   time
@@ -164,33 +184,59 @@ decrement : Int -> Int
 decrement n = n - 1
 
 
+
+-- Create ranges for labels and ticks
+
+
+range : Unit -> DateTime -> List String
+range unit datetime =
+  case unit of
+    Months ->
+      monthsRange
+
+    Weekdays ->
+      weekdaysRange
+
+    Days ->
+      daysRange datetime
+
+    Hours ->
+      hoursRange
+
+    Minutes ->
+      minutesRange
+
+    Seconds ->
+      secondsRange
+
+
 secondsRange : List String
-secondsRange = List.map String.fromInt (List.range 0 59)
+secondsRange = List.map String.fromInt ( List.range 0 59 )
 
 
 minutesRange : List String
-minutesRange = List.map String.fromInt (List.range 0 59)
+minutesRange = List.map String.fromInt ( List.range 0 59 )
 
 
 hoursRange : List String
-hoursRange = List.map String.fromInt (List.range 0 23)
+hoursRange = List.map String.fromInt ( List.range 0 23 )
 
 
 daysRange : DateTime -> List String
-daysRange { date } =
+daysRange ( DateTime date _ _ ) =
   let
-    year = Date.year date
+    year  = Date.year  date
     month = Date.month date
 
     start = Date.fromCalendarDate year month 1
-    until = start |> Date.add Months 1
+    until = start |> Date.add Date.Months 1
   in
-  List.map (Date.day >> String.fromInt) (Date.range Day 1 start until)
+  List.map ( Date.day >> String.fromInt ) ( Date.range Day 1 start until )
 
 
 weekdaysRange : List String
-weekdaysRange = List.map (numberToWeekday >> weekdayToString) (List.range 1 7)
+weekdaysRange = List.map ( numberToWeekday >> weekdayToString ) ( List.range 1 7 )
 
 
 monthsRange : List String
-monthsRange = List.map (numberToMonth >> monthToString) (List.range 1 12)
+monthsRange = List.map ( numberToMonth >> monthToString ) ( List.range 1 12 )
