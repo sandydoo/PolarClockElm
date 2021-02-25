@@ -17,7 +17,7 @@
   "homepage": "https://polarclockelm.sandydoo.me/",
   "private": true,
   "scripts": {
-    "serve": "yarn parcel public/index.html",
+    "start": "yarn parcel public/index.html",
     "build": "scripts/build.sh",
     "deploy": "scripts/deploy.sh"
   },

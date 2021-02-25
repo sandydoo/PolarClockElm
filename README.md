@@ -37,7 +37,7 @@ Inspired by Mike Bostock's [Polar Clock III](https://bl.ocks.org/mbostock/c150b7
    * For local development:
 
      ```bash
-     yarn serve
+     yarn start
      ```
 
    * For the final release:
