@@ -39,7 +39,13 @@ type alias Model =
   , clockArms  : List Clock.Arm
   , dimensions : Window.Dimensions
   , delta      : Float
+  , state      : State
   }
+
+
+type State
+  = Paused
+  | Playing
 
 
 
@@ -79,6 +85,7 @@ init { currentTime, dimensions } =
     , clockArms  = clockArms
     , dimensions = dimensions
     , delta      = 0
+    , state      = Playing
     }
   , Task.perform UpdateTimeZone Time.here
   )
@@ -93,6 +100,7 @@ type Msg
   | UpdateTimeZone Time.Zone
   | Animate Float
   | Resize Window.Dimensions
+  | ToggleState Event.Visibility
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -129,6 +137,21 @@ update msg model =
       , Cmd.none
       )
 
+    ToggleState visibility ->
+      let
+        state =
+          case visibility of
+            Event.Visible ->
+              Playing
+
+            Event.Hidden ->
+              Paused
+
+      in
+      ( { model | state = state }
+      , Task.perform UpdateTime Time.now
+      )
+
 
 
 -- Subscriptions
@@ -136,11 +159,20 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  Sub.batch
-    [ Time.every 1000 UpdateTime
-    , Event.onAnimationFrameDelta Animate
-    , Window.onResize Resize
-    ]
+  case model.state of
+    Paused ->
+      Sub.batch
+        [ Event.onVisibilityChange ToggleState
+        , Window.onResize Resize
+        ]
+
+    Playing ->
+      Sub.batch
+        [ Time.every 1000 UpdateTime
+        , Event.onAnimationFrameDelta Animate
+        , Event.onVisibilityChange ToggleState
+        , Window.onResize Resize
+        ]
 
 
 
