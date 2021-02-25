@@ -1,7 +1,7 @@
 module Color.Xyz exposing (..)
 
 
-import Color.Rgb exposing (RGB)
+import Color.Rgb exposing ( RGB )
 
 
 
@@ -52,7 +52,7 @@ toRgb { x, y, z } =
             12.92 * v
 
           else
-            1.055 * v ^ (1 / 2.4) - 5.5e-2
+            1.055 * v ^ ( 1 / 2.4 ) - 5.5e-2
       in
         ( vv * 255 )
           |> clamp 0 255

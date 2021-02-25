@@ -17,7 +17,7 @@ linear a d t =
 
 float : Float -> Float -> Float -> Float
 float start end time =
-  linear start (end - start) time
+  linear start ( end - start ) time
 
 
 hue : Float -> Float -> Float -> Float
@@ -37,7 +37,7 @@ hue a b =
 scaleProgress : Int -> Float -> ( Int, Int, Float )
 scaleProgress max time =
   let
-    position = time * toFloat (max - 1)
+    position = time * toFloat ( max - 1 )
 
     bottom = floor position
 
@@ -66,10 +66,10 @@ takeTwoOr fallback list =
       ( a, b )
 
 
-listOf : (color -> color -> Float -> color) -> Cons color -> (Float -> color)
-listOf interpolate (Cons baseColor colorsL) =
+listOf : ( color -> color -> Float -> color ) -> Cons color -> ( Float -> color )
+listOf interpolate ( Cons baseColor colorsL ) =
   let
-    colors = Array.fromList (baseColor :: colorsL)
+    colors = Array.fromList ( baseColor :: colorsL )
     count  = Array.length colors
 
     toCurrentProgress = scaleProgress count
@@ -81,7 +81,7 @@ listOf interpolate (Cons baseColor colorsL) =
 
         ( color1, color2 ) =
           takeTwoOr baseColor << Array.toList <|
-            Array.slice from (to + 1) colors
+            Array.slice from ( to + 1 ) colors
       in
         interpolate color1 color2 progress
   in

@@ -1,7 +1,7 @@
 module Color.Lch exposing (..)
 
 
-import Color.Lab exposing (Lab)
+import Color.Lab exposing ( Lab )
 import Color.Interpolate as Interpolate
 
 

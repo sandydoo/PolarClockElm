@@ -2,8 +2,8 @@ module Color.Lab exposing (..)
 
 
 import Color.Interpolate as Interpolate
-import Color.Rgb exposing (RGB)
-import Color.Xyz exposing (XYZ)
+import Color.Rgb exposing ( RGB )
+import Color.Xyz exposing ( XYZ )
 import Color.Xyz as Xyz
 
 
@@ -30,7 +30,7 @@ fromXyz { x, y, z } =
   let
     f a =
       if a > epsilon then
-        a ^ (1 / 3)
+        a ^ ( 1 / 3 )
 
       else
         ( kappa * a + 16 ) / 116
@@ -59,7 +59,7 @@ toXyz { l, a, b } =
         v3
 
       else
-        (116 * v - 16) / kappa
+        ( 116 * v - 16 ) / kappa
 
     fy = ( l + 16 ) / 116
     fx = a / 500 + fy
