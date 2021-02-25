@@ -1,15 +1,38 @@
-module Draw exposing (..)
+module Draw exposing ( clock )
 
 
 import Animation as Anim
 import Svg
+import Svg exposing ( Svg )
 import Svg.Attributes as SA
 import Svg.Lazy as SL
 
 import Color.Rgb as Rgb
-import Color.Lab exposing (Lab)
+import Color.Lab exposing ( Lab )
 import Color.Lab as Lab
 import Color.Interpolate as Interpolate
+
+import Clock
+import Window
+
+
+
+clock : Window.Dimensions -> List Clock.Arm -> Float -> Svg msg
+clock { width, height } clockArms delta =
+  Svg.svg
+    [ SA.width  <| String.fromInt width
+    , SA.height <| String.fromInt height
+    , SA.viewBox "0 0 1000 1000"
+    , SA.preserveAspectRatio "xMidYMid meet"
+    ]
+    [ Svg.g
+      [ SA.transform "translate(500, 500)" ]
+      [ SL.lazy  groupOfTracks  clockArms
+      , SL.lazy2 groupOfCursors clockArms delta
+      , SL.lazy  groupOfTicks   clockArms
+      , SL.lazy2 groupOfArms    clockArms delta
+      ]
+    ]
 
 
 
@@ -20,37 +43,21 @@ tau = 2 * pi
 
 
 type alias Arc =
-  { startAngle : Float
-  , endAngle : Float
-  , innerRadius : Float
-  , outerRadius : Float
+  { startAngle   : Float
+  , endAngle     : Float
+  , innerRadius  : Float
+  , outerRadius  : Float
   , cornerRadius : Float
   }
 
 
-drawClock { clockArms, dimensions, delta } =
-  Svg.svg
-    [ SA.width  <| String.fromInt dimensions.width
-    , SA.height <| String.fromInt dimensions.height
-    , SA.viewBox "0 0 1000 1000"
-    , SA.preserveAspectRatio "xMidYMid meet"
-    ]
-    [ Svg.g
-      [ SA.transform "translate(500, 500)" ]
-      [ SL.lazy  drawTracks clockArms
-      , SL.lazy2 drawTrackHidingCircles delta clockArms
-      , SL.lazy  drawTicks clockArms
-      , SL.lazy2 drawArms delta clockArms
-      ]
-    ]
 
-
-drawTrack radius =
+singleTrack : Float -> Svg msg
+singleTrack radius =
   Svg.circle
     [ SA.cx "0"
     , SA.cy "0"
-    , SA.r <|
-        String.fromFloat radius
+    , SA.r <| String.fromFloat radius
     , SA.fill "none"
     , SA.stroke "#4a5568"
     , SA.strokeWidth "1"
@@ -58,16 +65,19 @@ drawTrack radius =
     ] []
 
 
-drawTracks clockArms =
+groupOfTracks : List Clock.Arm -> Svg msg
+groupOfTracks clockArms =
   Svg.g [] <|
-    List.map (.radius >> drawTrack) clockArms
+    List.map ( .radius >> singleTrack ) clockArms
 
 
-drawTrackHidingCircles delta clockArms =
+groupOfCursors : List Clock.Arm -> Float -> Svg msg
+groupOfCursors clockArms delta =
   let
-    drawCircle { angle, armRadius, radius } =
+    drawCircle : Clock.Arm -> Svg msg
+    drawCircle { radius, armRadius, animatedAngle } =
       let
-        ( cx, cy ) = pointOnArc 0 0 radius (Anim.animate delta angle)
+        ( cx, cy ) = pointOnArc 0 0 radius ( Anim.animate delta animatedAngle )
 
         translate =
           "translate(" ++ String.fromFloat cx ++ "," ++ String.fromFloat cy ++ ")"
@@ -87,14 +97,18 @@ drawTrackHidingCircles delta clockArms =
     List.map drawCircle clockArms
 
 
-drawTicks_ { range, length, radius, armRadius, angle } =
+ticksAlongTrack : Clock.Arm -> List ( Svg msg )
+ticksAlongTrack { radius, armRadius, ticks } =
   let
-    drawText { cx, cy, tick } =
+    drawTick index tick =
       let
+        ( cx, cy ) =
+          pointOnArc 0 0 radius ( toFloat index / toFloat ticks.count * 360 )
+
         translateTick =
           "translate(" ++ String.fromFloat cx ++ "," ++ String.fromFloat cy ++ ")"
 
-        fontSize = String.fromFloat (0.6 * armRadius) ++ "px"
+        fontSize = String.fromFloat ( 0.6 * armRadius ) ++ "px"
       in
       Svg.g
         [ SA.transform translateTick
@@ -103,7 +117,7 @@ drawTicks_ { range, length, radius, armRadius, angle } =
         [ Svg.circle
           [ SA.cx "0"
           , SA.cy "0"
-          , SA.r <| String.fromFloat (0.7 * armRadius)
+          , SA.r <| String.fromFloat ( 0.7 * armRadius )
           ] []
         , Svg.text_
           [ SA.dy "0.35em"
@@ -112,53 +126,14 @@ drawTicks_ { range, length, radius, armRadius, angle } =
           [ Svg.text tick ]
         ]
 
-    positionTicksOnArc index tick =
-      let
-        ( cx, cy ) =
-          pointOnArc 0 0 radius (toFloat index / toFloat length * 360)
-      in
-      { tick = tick, cx = cx, cy = cy }
-
-    newRange =
-      List.indexedMap positionTicksOnArc range
   in
-  List.map drawText newRange
+  List.indexedMap drawTick ticks.labels
 
 
-drawTicks clockArms =
+groupOfTicks : List Clock.Arm -> Svg.Svg msg
+groupOfTicks clockArms =
   Svg.g [] <|
-    List.concatMap drawTicks_ clockArms
-
-
-drawDot radius angle dotRadius =
-  let
-    ( cx, cy ) =
-      pointOnArc 0 0 radius angle
-
-    strDotRadius =
-      String.fromFloat dotRadius
-  in
-  String.join " "
-    [ "M"
-    , String.fromFloat cx
-    , String.fromFloat (dotRadius + cy)
-    , "a"
-    , strDotRadius
-    , strDotRadius
-    , "0"
-    , "0"
-    , "1"
-    , "0"
-    , String.fromFloat (-dotRadius * 2)
-    , "a"
-    , strDotRadius
-    , strDotRadius
-    , "0"
-    , "0"
-    , "1"
-    , "0"
-    , String.fromFloat (dotRadius * 2)
-    ]
+    List.concatMap ticksAlongTrack clockArms
 
 
 colorFill : Float -> Lab
@@ -168,9 +143,10 @@ colorFill =
     ( Lab.fromRgb { r = 251, g = 183, b = 192 } )
 
 
-drawArm delta { radius, armRadius, angle } =
+singleArm : Clock.Arm -> Float -> Svg msg
+singleArm { radius, armRadius, animatedAngle } delta =
   let
-    newAngle = Anim.animate delta angle
+    newAngle = Anim.animate delta animatedAngle
 
     progress =
       newAngle / 360
@@ -184,14 +160,14 @@ drawArm delta { radius, armRadius, angle } =
   Svg.g []
     [ Svg.path
       [ SA.d <|
-        drawArc
+        arcPath
           { startAngle = -armRadius / radius
-          , endAngle = newAngle + (armRadius / radius)
+          , endAngle = newAngle + ( armRadius / radius )
           , innerRadius = radius - armRadius
           , outerRadius = radius + armRadius
           , cornerRadius = armRadius
           }
-          ++ drawDot radius (newAngle - (armRadius / radius)) (0.8 * armRadius)
+          ++ dotPath radius ( newAngle - ( armRadius / radius ) ) ( 0.8 * armRadius )
           ++ "Z"
       , SA.fill fill
       , SA.fillRule "evenodd"
@@ -199,23 +175,50 @@ drawArm delta { radius, armRadius, angle } =
     ]
 
 
-drawArms delta clockArms =
+groupOfArms : List Clock.Arm -> Float -> Svg.Svg msg
+groupOfArms clockArms delta =
   Svg.g [] <|
-    List.map (drawArm delta) clockArms
+    List.map ( flip singleArm delta ) clockArms
 
 
-pointOnArc : Float -> Float -> Float -> Float -> (Float, Float)
-pointOnArc cx cy radius angle =
+
+-- SVG Paths
+
+
+dotPath : Float -> Float -> Float -> String
+dotPath radius angle dotRadius =
   let
-    radAngle = degrees angle - pi / 2
+    ( cx, cy ) =
+      pointOnArc 0 0 radius angle
+
+    dotRadiusString =
+      String.fromFloat dotRadius
   in
-    ( cx + radius * cos radAngle
-    , cy + radius * sin radAngle
-    )
+  String.join " "
+    [ "M"
+    , String.fromFloat cx
+    , String.fromFloat <| dotRadius + cy
+    , "a"
+    , dotRadiusString
+    , dotRadiusString
+    , "0"
+    , "0"
+    , "1"
+    , "0"
+    , String.fromFloat <| -dotRadius * 2
+    , "a"
+    , dotRadiusString
+    , dotRadiusString
+    , "0"
+    , "0"
+    , "1"
+    , "0"
+    , String.fromFloat <| dotRadius * 2
+    ]
 
 
-drawArc : Arc -> String
-drawArc { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
+arcPath : Arc -> String
+arcPath { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
   let
     cx = 0
     cy = 0
@@ -372,3 +375,21 @@ drawArc { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
       , String.fromFloat innerArcStartX
       , String.fromFloat innerArcStartY
       ]
+
+
+
+-- Utilities
+
+
+pointOnArc : Float -> Float -> Float -> Float -> ( Float, Float )
+pointOnArc cx cy radius angle =
+  let
+    radAngle = degrees angle - pi / 2
+  in
+    ( cx + radius * cos radAngle
+    , cy + radius * sin radAngle
+    )
+
+
+flip : ( a -> b -> c) -> b -> a -> c
+flip f b a = f a b
