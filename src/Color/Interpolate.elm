@@ -1,9 +1,8 @@
 module Color.Interpolate exposing (..)
 
 
-import Cons
-import Cons exposing (Cons(..))
 import Array
+import Cons exposing ( Cons(..) )
 
 
 

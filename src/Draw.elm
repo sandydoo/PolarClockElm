@@ -2,14 +2,12 @@ module Draw exposing ( clock )
 
 
 import Animation as Anim
-import Svg
 import Svg exposing ( Svg )
 import Svg.Attributes as SA
 import Svg.Lazy as SL
 
 import Color.Rgb as Rgb
-import Color.Lab exposing ( Lab )
-import Color.Lab as Lab
+import Color.Lab as Lab exposing ( Lab )
 import Color.Interpolate as Interpolate
 
 import Clock

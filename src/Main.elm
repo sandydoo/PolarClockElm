@@ -10,7 +10,6 @@ import Html.Attributes
 import Task
 import Time
 
-import Calendar
 import Calendar exposing ( DateTime(..) )
 import Clock
 import Draw

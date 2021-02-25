@@ -1,10 +1,9 @@
 module Clock exposing (..)
 
 import Animation as Anim
-import Ease exposing ( outQuart )
+import Ease
 import Time
 
-import Calendar
 import Calendar exposing ( DateTime, Unit(..) )
 
 
@@ -103,7 +102,7 @@ update datetime delta arms =
         newAnimatedAngle =
           Anim.retarget delta newAngle animatedAngle
           |> Anim.duration 750
-          |> Anim.ease outQuart
+          |> Anim.ease Ease.outQuart
 
       in
       { arm | ticks = newTicks, animatedAngle = newAnimatedAngle }
