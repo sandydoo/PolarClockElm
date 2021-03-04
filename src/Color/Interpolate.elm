@@ -66,8 +66,8 @@ takeTwoOr fallback list =
       ( a, b )
 
 
-listOf : ( color -> color -> Float -> color ) -> Cons color -> ( Float -> color )
-listOf interpolate ( Cons baseColor colorsL ) =
+manyVia : ( color -> color -> Float -> color ) -> Cons color -> ( Float -> color )
+manyVia interpolate ( Cons baseColor colorsL ) =
   let
     colors = Array.fromList ( baseColor :: colorsL )
     count  = Array.length colors
