@@ -6,8 +6,10 @@ import Svg exposing ( Svg )
 import Svg.Attributes as SA
 import Svg.Lazy as SL
 
+import Cons exposing ( cons )
 import Color.Rgb as Rgb
-import Color.Lab as Lab exposing ( Lab )
+import Color.Lab as Lab
+import Color.Lch as Lch exposing ( Lch )
 import Color.Interpolate as Interpolate
 
 import Clock
@@ -134,11 +136,15 @@ groupOfTicks clockArms =
     List.concatMap ticksAlongTrack clockArms
 
 
-colorFill : Float -> Lab
+-- Valentines
+colorFill : Float -> Lch
 colorFill =
-  Lab.interpolate
-    ( Lab.fromRgb { r = 252, g = 222, b = 156 } )
-    ( Lab.fromRgb { r = 251, g = 183, b = 192 } )
+  Interpolate.manyVia Lch.interpolate <|
+    cons
+      ( { h = 20, c = 40, l = 90 } )
+      [ { h = 20, c = 65, l = 70 }
+      , { h = 30, c = 70, l = 60 }
+      ]
 
 
 singleArm : Clock.Arm -> Float -> Svg msg
@@ -150,7 +156,7 @@ singleArm { radius, armRadius, animatedAngle } delta =
       newAngle / 360
 
     fill =
-      ( Lab.toRgb >> Rgb.toString ) <| colorFill progress
+      ( Lch.toLab >> Lab.toRgb >> Rgb.toString ) <| colorFill progress
 
     ( cx, cy ) =
       pointOnArc 0 0 radius newAngle
