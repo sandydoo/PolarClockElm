@@ -17,8 +17,8 @@ import Window
 
 
 
-clock : Window.Dimensions -> List Clock.Arm -> Float -> Svg msg
-clock { width, height } clockArms delta =
+clock : Window.Dimensions -> Bool -> List Clock.Arm -> Float -> Svg msg
+clock { width, height } supportsP3Color clockArms delta =
   Svg.svg
     [ SA.width  <| String.fromInt width
     , SA.height <| String.fromInt height
@@ -30,7 +30,7 @@ clock { width, height } clockArms delta =
       [ SL.lazy  groupOfTracks  clockArms
       , SL.lazy2 groupOfCursors clockArms delta
       , SL.lazy  groupOfTicks   clockArms
-      , SL.lazy2 groupOfArms    clockArms delta
+      , SL.lazy3 groupOfArms    clockArms supportsP3Color delta
       ]
     ]
 
@@ -147,8 +147,8 @@ colorFill =
       ]
 
 
-singleArm : Clock.Arm -> Float -> Svg msg
-singleArm { radius, armRadius, animatedAngle } delta =
+singleArm : Clock.Arm -> Bool -> Float -> Svg msg
+singleArm { radius, armRadius, animatedAngle } supportsP3Color delta =
   let
     newAngle = Anim.animate delta animatedAngle
 
@@ -156,7 +156,7 @@ singleArm { radius, armRadius, animatedAngle } delta =
       newAngle / 360
 
     fill =
-      ( Lch.toLab >> Lab.toRgb >> Rgb.toString ) <| colorFill progress
+      ( Lch.toLab >> Lab.toRgb ) <| colorFill progress
 
     ( cx, cy ) =
       pointOnArc 0 0 radius newAngle
@@ -173,16 +173,19 @@ singleArm { radius, armRadius, animatedAngle } delta =
           }
           ++ dotPath radius ( newAngle - ( armRadius / radius ) ) ( 0.8 * armRadius )
           ++ "Z"
-      , SA.fill fill
+      , SA.fill <|
+          if supportsP3Color
+          then Rgb.toP3String fill
+          else Rgb.toString fill
       , SA.fillRule "evenodd"
       ] []
     ]
 
 
-groupOfArms : List Clock.Arm -> Float -> Svg.Svg msg
-groupOfArms clockArms delta =
+groupOfArms : List Clock.Arm -> Bool -> Float -> Svg.Svg msg
+groupOfArms clockArms supportsP3Color delta =
   Svg.g [] <|
-    List.map ( flip singleArm delta ) clockArms
+    List.map ( \clockArm -> singleArm clockArm supportsP3Color delta ) clockArms
 
 
 

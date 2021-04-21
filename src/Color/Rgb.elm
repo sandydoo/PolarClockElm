@@ -31,3 +31,13 @@ toString { r, g, b }
   ++ String.fromFloat g ++ ", "
   ++ String.fromFloat b
   ++ ")"
+
+
+toP3String { r, g, b }
+  = "color(display-p3 "
+  ++ String.fromFloat ( r / 255 )
+  ++ " "
+  ++ String.fromFloat ( g / 255 )
+  ++ " "
+  ++ String.fromFloat ( b / 255 )
+  ++ ")"

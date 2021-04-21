@@ -4,6 +4,15 @@
   --secondary-color: #bdc1c5;
 }
 
+/* Display-P3 color, when supported. */
+@supports (color: color(display-p3 1 1 1)) {
+  :root {
+    --background-color: color(display-p3 0.1065 0.1248 0.1686);
+    --foreground-color: color(display-p3 0.933 0.9484 0.9665);
+    --secondary-color: color(display-p3 0.744 0.7563 0.7708);
+  }
+}
+
 * {
   box-sizing: border-box;
 }

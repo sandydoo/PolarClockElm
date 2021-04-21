@@ -35,11 +35,12 @@ main =
 
 
 type alias Model =
-  { datetime   : Calendar.DateTime
-  , clockArms  : List Clock.Arm
-  , dimensions : Window.Dimensions
-  , delta      : Float
-  , state      : State
+  { datetime        : Calendar.DateTime
+  , clockArms       : List Clock.Arm
+  , dimensions      : Window.Dimensions
+  , supportsP3Color : Bool
+  , delta           : Float
+  , state           : State
   }
 
 
@@ -53,27 +54,29 @@ type State
 
 
 type alias Flags =
-  { currentTime : Int
-  , dimensions  : Window.Dimensions
+  { currentTime     : Int
+  , dimensions      : Window.Dimensions
+  , supportsP3Color : Bool
   }
 
 
 flagsDecoder : Decoder Flags
 flagsDecoder =
-  Decode.map2 Flags
+  Decode.map3 Flags
     ( Decode.field "currentTime" Decode.int )
     ( Decode.field "dimensions" <|
         Decode.map2 Window.Dimensions
           ( Decode.field "width"  Decode.int )
           ( Decode.field "height" Decode.int )
     )
+    ( Decode.field "supportsP3Color" Decode.bool )
 
 
 
 init : Flags -> ( Model, Cmd Msg )
-init { currentTime, dimensions } =
+init flags =
   let
-    time = Time.millisToPosix currentTime
+    time = Time.millisToPosix flags.currentTime
 
     zone = Time.utc
 
@@ -81,11 +84,12 @@ init { currentTime, dimensions } =
 
     clockArms = Clock.init datetime
   in
-  ( { datetime   = datetime
-    , clockArms  = clockArms
-    , dimensions = dimensions
-    , delta      = 0
-    , state      = Playing
+  ( { datetime        = datetime
+    , clockArms       = clockArms
+    , dimensions      = flags.dimensions
+    , supportsP3Color = flags.supportsP3Color
+    , delta           = 0
+    , state           = Playing
     }
   , Task.perform UpdateTimeZone Time.here
   )
@@ -182,6 +186,6 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   let
-    { dimensions, clockArms, delta } = model
+    { dimensions, clockArms, delta, supportsP3Color } = model
   in
-  Html.div [] [ Draw.clock dimensions clockArms delta ]
+  Html.div [] [ Draw.clock dimensions supportsP3Color clockArms delta ]
