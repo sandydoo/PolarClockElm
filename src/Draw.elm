@@ -9,6 +9,7 @@ import Svg.Lazy as SL
 import Cons exposing ( cons )
 import Color.Rgb as Rgb
 import Color.Lab as Lab
+import Color.Lab as Lab exposing ( Lab )
 import Color.Lch as Lch exposing ( Lch )
 import Color.Interpolate as Interpolate
 
@@ -136,14 +137,16 @@ groupOfTicks clockArms =
     List.concatMap ticksAlongTrack clockArms
 
 
--- Valentines
 colorFill : Float -> Lch
 colorFill =
-  Interpolate.manyVia Lch.interpolate <|
+  Interpolate.manyVia Lch.interpolateLong <|
     cons
-      ( { h = 20, c = 40, l = 90 } )
-      [ { h = 20, c = 65, l = 70 }
-      , { h = 30, c = 70, l = 60 }
+        { l = 78, c = 78,  h = 14 }  -- V
+      [ { l = 78, c = 78,  h = 48 }  -- R
+      , { l = 78, c = 78,  h = 60 }  -- Y
+      , { l = 78, c = 78,  h = 120 } -- YG
+      , { l = 78, c = 78,  h = 180 } -- BG
+      , { l = 78, c = 78,  h = 260 } -- B
       ]
 
 

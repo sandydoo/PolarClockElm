@@ -54,3 +54,10 @@ interpolate lch1 lch2 time =
   , c = Interpolate.float lch1.c lch2.c time
   , h = Interpolate.hue   lch1.h lch2.h time
   }
+
+interpolateLong : Lch -> Lch -> Float -> Lch
+interpolateLong lch1 lch2 time =
+  { l = Interpolate.float lch1.l lch2.l time
+  , c = Interpolate.float lch1.c lch2.c time
+  , h = Interpolate.float lch1.h lch2.h time
+  }
