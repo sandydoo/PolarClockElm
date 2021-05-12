@@ -139,15 +139,9 @@ groupOfTicks clockArms =
 
 colorFill : Float -> Lch
 colorFill =
-  Interpolate.manyVia Lch.interpolateLong <|
-    cons
-        { l = 78, c = 78,  h = 14 }  -- V
-      [ { l = 78, c = 78,  h = 48 }  -- R
-      , { l = 78, c = 78,  h = 60 }  -- Y
-      , { l = 78, c = 78,  h = 120 } -- YG
-      , { l = 78, c = 78,  h = 180 } -- BG
-      , { l = 78, c = 78,  h = 260 } -- B
-      ]
+  Lch.interpolateLong
+    { l = 92.991667, c = 47.855050,  h = -30 }
+    { l = 92.991667, c = 47.855050,  h = 330 }
 
 
 singleArm : Clock.Arm -> Bool -> Float -> Svg msg
