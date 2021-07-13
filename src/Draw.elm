@@ -20,9 +20,9 @@ tau = 2 * pi
 type alias Arc =
   { startAngle   : Float
   , endAngle     : Float
-  , innerRadius  : Float
-  , outerRadius  : Float
+  , radius       : Float
   , cornerRadius : Float
+  , thickness    : Float
   }
 
 
@@ -101,8 +101,8 @@ drawTicks { radius, armRadius, ticks } =
 --    { l = 92.991667, c = 47.855050,  h = 330 }
 
 
-drawArm : Clock.Arm -> Bool -> Float -> Svg msg
-drawArm { radius, armRadius, animatedAngle } supportsP3Color delta =
+drawArm : Clock.Arm -> Float -> Svg msg
+drawArm { radius, armRadius, animatedAngle, ticks } delta =
   let
     newAngle = Anim.animate delta animatedAngle
 
@@ -112,22 +112,20 @@ drawArm { radius, armRadius, animatedAngle } supportsP3Color delta =
     ( cx, cy ) =
       pointOnArc 0 0 radius newAngle
   in
-  Svg.g []
-    [ Svg.path
-      [ SA.d <|
-        arcPath
-          { startAngle = -armRadius / radius
-          , endAngle = newAngle + ( armRadius / radius )
-          , innerRadius = radius - armRadius
-          , outerRadius = radius + armRadius
-          , cornerRadius = armRadius
-          }
-          ++ dotPath radius ( newAngle - ( armRadius / radius ) ) ( 0.8 * armRadius )
-          ++ "Z"
-      , SA.fill "#d9d9d9"
-      , SA.fillRule "evenodd"
-      ] []
-    ]
+  Svg.path
+    [ SA.d <|
+      arcPath
+        { startAngle = -armRadius / radius
+        , endAngle = newAngle + headingChange armRadius radius
+        , radius = radius
+        , thickness = armRadius
+        , cornerRadius = 23
+        }
+        --++ dotPath radius ( newAngle - ( armRadius / radius ) ) ( 0.8 * armRadius )
+        ++ "Z"
+    , SA.fill "#d9d9d9"
+    , SA.fillRule "evenodd"
+    ] []
 
 
 
@@ -167,58 +165,61 @@ dotPath radius angle dotRadius =
 
 
 arcPath : Arc -> String
-arcPath { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
+arcPath arc =
   let
     cx = 0
     cy = 0
 
-    deltaAngle =
-      abs ( endAngle - startAngle )
+    { radius, thickness } = arc
 
-    radius =
-      ( outerRadius + innerRadius ) / 2
+    angleSpan =
+      abs ( arc.endAngle - arc.startAngle )
 
-    width =
-      outerRadius - innerRadius
+    -- Diving by 2 later
+    outerRadius = radius + thickness
+    innerRadius = radius - thickness
 
-    corner =
-      min ( width / 2 ) cornerRadius
+    -- Remove division later
+    cornerRadius = min arc.cornerRadius ( thickness / 2 )
+
+    outerCornerOffsetAngle = headingChange cornerRadius outerRadius
+    innerCornerOffsetAngle = headingChange cornerRadius innerRadius
+
+    startAngle = arc.startAngle
+    endAngle   = max arc.endAngle (outerCornerOffsetAngle * 2)
 
     ( outerStartX, outerStartY ) =
-      pointOnArc cx cy outerRadius startAngle
+      pointOnArc cx cy outerRadius ( startAngle + outerCornerOffsetAngle )
 
     ( outerEndX, outerEndY ) =
-      pointOnArc cx cy outerRadius endAngle
+      pointOnArc cx cy outerRadius ( endAngle - outerCornerOffsetAngle  )
 
     ( innerStartX, innerStartY ) =
-      pointOnArc cx cy innerRadius startAngle
+      pointOnArc cx cy innerRadius ( startAngle + innerCornerOffsetAngle )
 
     ( innerEndX, innerEndY ) =
-      pointOnArc cx cy innerRadius endAngle
-
-    cornerDeltaAngle =
-      360 * ( corner / ( tau * radius ) )
+      pointOnArc cx cy innerRadius ( endAngle - innerCornerOffsetAngle )
 
     ( innerArcStartX, innerArcStartY ) =
-      pointOnArc cx cy radius ( startAngle - cornerDeltaAngle )
-
-    ( innerArcEndX, innerArcEndY ) =
-      pointOnArc cx cy radius ( endAngle + cornerDeltaAngle )
+      pointOnArc cx cy (innerRadius + cornerRadius) startAngle
 
     ( outerArcStartX, outerArcStartY ) =
-      pointOnArc cx cy radius ( startAngle - cornerDeltaAngle )
+      pointOnArc cx cy (outerRadius - cornerRadius) startAngle
+
+    ( innerArcEndX, innerArcEndY ) =
+      pointOnArc cx cy (innerRadius + cornerRadius) endAngle
 
     ( outerArcEndX, outerArcEndY ) =
-      pointOnArc cx cy radius ( endAngle + cornerDeltaAngle )
+      pointOnArc cx cy (outerRadius - cornerRadius) endAngle
 
-    arcSweep =
-      if deltaAngle > 180 then
+    largeArc =
+      if angleSpan - 2 * outerCornerOffsetAngle > 180 then
         1
 
       else
         0
   in
-  if ( deltaAngle + 2 * cornerDeltaAngle ) > ( 360 - 1.0e-6 ) then
+  if angleSpan > ( 360 - 1.0e-6 ) then
     let
       ( outerHalfX, outerHalfY ) =
         pointOnArc cx cy outerRadius ( startAngle + 180 )
@@ -273,8 +274,8 @@ arcPath { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
       , String.fromFloat outerArcStartX
       , String.fromFloat outerArcStartY
       , "A"
-      , String.fromFloat corner
-      , String.fromFloat corner
+      , String.fromFloat cornerRadius
+      , String.fromFloat cornerRadius
       , "0"
       , "0"
       , "1"
@@ -284,13 +285,13 @@ arcPath { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
       , String.fromFloat outerRadius
       , String.fromFloat outerRadius
       , "0"
-      , String.fromFloat arcSweep
+      , String.fromFloat largeArc
       , "1"
       , String.fromFloat outerEndX
       , String.fromFloat outerEndY
       , "A"
-      , String.fromFloat corner
-      , String.fromFloat corner
+      , String.fromFloat cornerRadius
+      , String.fromFloat cornerRadius
       , "0"
       , "0"
       , "1"
@@ -300,8 +301,8 @@ arcPath { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
       , String.fromFloat innerArcEndX
       , String.fromFloat innerArcEndY
       , "A"
-      , String.fromFloat corner
-      , String.fromFloat corner
+      , String.fromFloat cornerRadius
+      , String.fromFloat cornerRadius
       , "0"
       , "0"
       , "1"
@@ -311,13 +312,13 @@ arcPath { startAngle, endAngle, innerRadius, outerRadius, cornerRadius } =
       , String.fromFloat innerRadius
       , String.fromFloat innerRadius
       , "0"
-      , String.fromFloat arcSweep
+      , String.fromFloat largeArc
       , "0"
       , String.fromFloat innerStartX
       , String.fromFloat innerStartY
       , "A"
-      , String.fromFloat corner
-      , String.fromFloat corner
+      , String.fromFloat cornerRadius
+      , String.fromFloat cornerRadius
       , "0"
       , "0"
       , "1"
@@ -338,3 +339,7 @@ pointOnArc cx cy radius angle =
     ( cx + radius * cos radAngle
     , cy + radius * sin radAngle
     )
+
+
+headingChange distance radius =
+  ( distance / radius ) * ( 360 / tau )

@@ -5,7 +5,7 @@ import Browser
 import Browser.Events as Event
 import Json.Decode as Decode exposing ( Decoder )
 import Html exposing ( Html )
-import Svg exposing ( Svg )
+import Svg
 import Svg.Attributes as SA
 import Task
 import Time
@@ -90,11 +90,7 @@ flagsDecoder =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
   let
-    time = Time.millisToPosix flags.currentTime
-
-    zone = Time.utc
-
-    datetime = Calendar.toDatetime zone time
+    datetime = Calendar.toDatetime Time.utc (Time.millisToPosix flags.currentTime)
 
     config =
       { dimensions = flags.dimensions
@@ -145,9 +141,9 @@ update msg model =
 
         newDatetime = Calendar.toDatetime zone newTime
 
-        --newClockArms = Clock.update newDatetime model.delta model.clockArms
+        newClock = Clock.update newDatetime model.animation.delta model.clock
       in
-      ( { model | datetime = newDatetime, clock = model.clock }
+      ( { model | datetime = newDatetime, clock = newClock }
       , Cmd.none
       )
 
@@ -217,7 +213,8 @@ subscriptions { animation } =
 view : Model -> Html Msg
 view model =
   let
-    { width, height } = model.config.dimensions
+    { config, animation } = model
+    { width, height } = config.dimensions
   in
   Html.div []
     [ Svg.svg
@@ -227,7 +224,16 @@ view model =
       , SA.preserveAspectRatio "xMidYMid meet"
       ]
       [ Svg.g
-        [ SA.transform "translate(500, 500)" ]
-        ( List.map (\arm -> Draw.drawTrack arm.radius (Color.rgb 1.0 1.0 1.0) 1 ) model.clock )
+        [ SA.transform "translate(500, 500)" ] <|
+        flip List.map model.clock <| \arm ->
+          Svg.g []
+          [ Draw.drawTrack arm.radius (Color.rgb 1.0 1.0 1.0) 0.5
+          , Svg.g [] <| Draw.drawTicks arm
+          , Draw.drawArm arm animation.delta
+          ]
       ]
     ]
+
+
+flip : (a -> b -> c) -> b -> a -> c
+flip f b a = f a b
