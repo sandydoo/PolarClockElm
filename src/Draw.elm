@@ -1,39 +1,15 @@
-module Draw exposing ( clock )
+module Draw exposing (..)
 
 
 import Animation as Anim
 import Svg exposing ( Svg )
 import Svg.Attributes as SA
-import Svg.Lazy as SL
 
-import Cons exposing ( cons )
 import Color.Rgb as Rgb
 import Color.Lab as Lab
-import Color.Lab as Lab exposing ( Lab )
 import Color.Lch as Lch exposing ( Lch )
-import Color.Interpolate as Interpolate
 
 import Clock
-import Window
-
-
-
-clock : Window.Dimensions -> Bool -> List Clock.Arm -> Float -> Svg msg
-clock { width, height } supportsP3Color clockArms delta =
-  Svg.svg
-    [ SA.width  <| String.fromInt width
-    , SA.height <| String.fromInt height
-    , SA.viewBox "0 0 1000 1000"
-    , SA.preserveAspectRatio "xMidYMid meet"
-    ]
-    [ Svg.g
-      [ SA.transform "translate(500, 500)" ]
-      [ SL.lazy  groupOfTracks  clockArms
-      , SL.lazy2 groupOfCursors clockArms delta
-      , SL.lazy  groupOfTicks   clockArms
-      , SL.lazy3 groupOfArms    clockArms supportsP3Color delta
-      ]
-    ]
 
 
 
@@ -53,8 +29,8 @@ type alias Arc =
 
 
 
-singleTrack : Float -> Svg msg
-singleTrack radius =
+drawTrack : Float -> Svg msg
+drawTrack radius =
   Svg.circle
     [ SA.cx "0"
     , SA.cy "0"
@@ -66,40 +42,28 @@ singleTrack radius =
     ] []
 
 
-groupOfTracks : List Clock.Arm -> Svg msg
-groupOfTracks clockArms =
-  Svg.g [] <|
-    List.map ( .radius >> singleTrack ) clockArms
 
-
-groupOfCursors : List Clock.Arm -> Float -> Svg msg
-groupOfCursors clockArms delta =
+drawCursor : Clock.Arm -> Float -> Svg msg
+drawCursor { radius, armRadius, animatedAngle } delta =
   let
-    drawCircle : Clock.Arm -> Svg msg
-    drawCircle { radius, armRadius, animatedAngle } =
-      let
-        ( cx, cy ) = pointOnArc 0 0 radius ( Anim.animate delta animatedAngle )
+    ( cx, cy ) = pointOnArc 0 0 radius ( Anim.animate delta animatedAngle )
 
-        translate =
-          "translate(" ++ String.fromFloat cx ++ "," ++ String.fromFloat cy ++ ")"
-      in
-      Svg.g
-        [ SA.transform translate ]
-        [ Svg.circle
-          [ SA.class "clock-track-hide-overflow"
-          , SA.cx "0"
-          , SA.cy "0"
-          , SA.r <| String.fromFloat armRadius
-          ] []
-        ]
-
+    translate =
+      "translate(" ++ String.fromFloat cx ++ "," ++ String.fromFloat cy ++ ")"
   in
-  Svg.g [] <|
-    List.map drawCircle clockArms
+  Svg.g
+    [ SA.transform translate ]
+    [ Svg.circle
+      [ SA.class "clock-track-hide-overflow"
+      , SA.cx "0"
+      , SA.cy "0"
+      , SA.r <| String.fromFloat armRadius
+      ] []
+    ]
 
 
-ticksAlongTrack : Clock.Arm -> List ( Svg msg )
-ticksAlongTrack { radius, armRadius, ticks } =
+drawTicks : Clock.Arm -> List ( Svg msg )
+drawTicks { radius, armRadius, ticks } =
   let
     drawTick index tick =
       let
@@ -131,11 +95,6 @@ ticksAlongTrack { radius, armRadius, ticks } =
   List.indexedMap drawTick ticks.labels
 
 
-groupOfTicks : List Clock.Arm -> Svg.Svg msg
-groupOfTicks clockArms =
-  Svg.g [] <|
-    List.concatMap ticksAlongTrack clockArms
-
 
 colorFill : Float -> Lch
 colorFill =
@@ -144,8 +103,8 @@ colorFill =
     { l = 92.991667, c = 47.855050,  h = 330 }
 
 
-singleArm : Clock.Arm -> Bool -> Float -> Svg msg
-singleArm { radius, armRadius, animatedAngle } supportsP3Color delta =
+drawArm : Clock.Arm -> Bool -> Float -> Svg msg
+drawArm { radius, armRadius, animatedAngle } supportsP3Color delta =
   let
     newAngle = Anim.animate delta animatedAngle
 
@@ -177,12 +136,6 @@ singleArm { radius, armRadius, animatedAngle } supportsP3Color delta =
       , SA.fillRule "evenodd"
       ] []
     ]
-
-
-groupOfArms : List Clock.Arm -> Bool -> Float -> Svg.Svg msg
-groupOfArms clockArms supportsP3Color delta =
-  Svg.g [] <|
-    List.map ( \clockArm -> singleArm clockArm supportsP3Color delta ) clockArms
 
 
 
@@ -393,7 +346,3 @@ pointOnArc cx cy radius angle =
     ( cx + radius * cos radAngle
     , cy + radius * sin radAngle
     )
-
-
-flip : ( a -> b -> c) -> b -> a -> c
-flip f b a = f a b

@@ -1,12 +1,12 @@
 module Main exposing (..)
 
 
-import Animation as Anim
 import Browser
 import Browser.Events as Event
 import Json.Decode as Decode exposing ( Decoder )
 import Html exposing ( Html )
-import Html.Attributes
+import Svg exposing ( Svg )
+import Svg.Attributes as SA
 import Task
 import Time
 
@@ -33,20 +33,33 @@ main =
 
 -- Model
 
+type alias Clock = List Clock.Arm
+type alias Controls = {}
 
-type alias Model =
-  { datetime        : Calendar.DateTime
-  , clockArms       : List Clock.Arm
-  , dimensions      : Window.Dimensions
-  , supportsP3Color : Bool
-  , delta           : Float
-  , state           : State
+type ColorSpace
+  = SRGB
+  | DisplayP3
+
+type alias Config =
+  { dimensions : Window.Dimensions
+  , colorSpace : ColorSpace
   }
 
-
-type State
+type Status
   = Paused
   | Playing
+
+type alias Animation =
+  { delta  : Float
+  , status : Status
+  }
+
+type alias Model =
+  { datetime  : Calendar.DateTime
+  , clock     : Clock
+  , config    : Config
+  , animation : Animation
+  }
 
 
 
@@ -82,14 +95,20 @@ init flags =
 
     datetime = Calendar.toDatetime zone time
 
-    clockArms = Clock.init datetime
+    config =
+      { dimensions = flags.dimensions
+      , colorSpace = if flags.supportsP3Color then DisplayP3 else SRGB
+      }
+
+    animation =
+      { delta  = 0
+      , status = Playing
+      }
   in
-  ( { datetime        = datetime
-    , clockArms       = clockArms
-    , dimensions      = flags.dimensions
-    , supportsP3Color = flags.supportsP3Color
-    , delta           = 0
-    , state           = Playing
+  ( { datetime  = datetime
+    , clock     = Clock.init datetime
+    , config    = config
+    , animation = animation
     }
   , Task.perform UpdateTimeZone Time.here
   )
@@ -125,25 +144,36 @@ update msg model =
 
         newDatetime = Calendar.toDatetime zone newTime
 
-        newClockArms = Clock.update newDatetime model.delta model.clockArms
+        --newClockArms = Clock.update newDatetime model.delta model.clockArms
       in
-      ( { model | datetime = newDatetime, clockArms = newClockArms }
+      ( { model | datetime = newDatetime, clock = model.clock }
       , Cmd.none
       )
 
     Animate newDelta ->
-      ( { model | delta = model.delta + newDelta }
+      let
+        animation = model.animation
+        newAnimation = { animation | delta = animation.delta + newDelta }
+      in
+      ( { model | animation = newAnimation }
       , Cmd.none
       )
 
     Resize newDimensions ->
-      ( { model | dimensions = newDimensions }
+      let
+        { config } = model
+
+        newConfig = { config | dimensions = newDimensions }
+      in
+      ( { model | config = newConfig }
       , Cmd.none
       )
 
     ToggleState visibility ->
       let
-        state =
+        { animation } = model
+
+        status =
           case visibility of
             Event.Visible ->
               Playing
@@ -152,7 +182,7 @@ update msg model =
               Paused
 
       in
-      ( { model | state = state }
+      ( { model | animation = { animation | status = status } }
       , Task.perform UpdateTime Time.now
       )
 
@@ -162,8 +192,8 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions model =
-  case model.state of
+subscriptions { animation } =
+  case animation.status of
     Paused ->
       Sub.batch
         [ Event.onVisibilityChange ToggleState
@@ -186,6 +216,17 @@ subscriptions model =
 view : Model -> Html Msg
 view model =
   let
-    { dimensions, clockArms, delta, supportsP3Color } = model
+    { width, height } = model.config.dimensions
   in
-  Html.div [] [ Draw.clock dimensions supportsP3Color clockArms delta ]
+  Html.div []
+    [ Svg.svg
+      [ SA.width  ( String.fromInt width  )
+      , SA.height ( String.fromInt height )
+      , SA.viewBox "0 0 1000 1000"
+      , SA.preserveAspectRatio "xMidYMid meet"
+      ]
+      [ Svg.g
+        [ SA.transform "translate(500, 500)" ]
+        ( List.map (.radius >> Draw.drawTrack) model.clock )
+      ]
+    ]
