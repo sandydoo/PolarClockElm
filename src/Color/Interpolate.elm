@@ -3,6 +3,7 @@ module Color.Interpolate exposing (..)
 
 import Array
 import Cons exposing ( Cons(..) )
+import Svg.Attributes exposing (keyTimes)
 
 
 
@@ -18,6 +19,16 @@ linear a d t =
 float : Float -> Float -> Float -> Float
 float start end time =
   linear start ( end - start ) time
+
+
+int : Int -> Int -> Float -> Int
+int start end time =
+  let
+    startFloat = toFloat start
+    endFloat   = toFloat end
+  in
+  truncate <|
+    linear startFloat ( endFloat - startFloat ) time
 
 
 hue : Float -> Float -> Float -> Float

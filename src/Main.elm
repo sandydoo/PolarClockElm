@@ -12,6 +12,7 @@ import Time
 
 import Calendar exposing ( DateTime(..) )
 import Clock
+import Color
 import Draw
 import Window
 
@@ -227,6 +228,6 @@ view model =
       ]
       [ Svg.g
         [ SA.transform "translate(500, 500)" ]
-        ( List.map (.radius >> Draw.drawTrack) model.clock )
+        ( List.map (\arm -> Draw.drawTrack arm.radius (Color.rgb 1.0 1.0 1.0) 1 ) model.clock )
       ]
     ]

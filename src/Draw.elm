@@ -5,9 +5,7 @@ import Animation as Anim
 import Svg exposing ( Svg )
 import Svg.Attributes as SA
 
-import Color.Rgb as Rgb
-import Color.Lab as Lab
-import Color.Lch as Lch exposing ( Lch )
+import Color
 
 import Clock
 
@@ -28,16 +26,16 @@ type alias Arc =
   }
 
 
-
-drawTrack : Float -> Svg msg
-drawTrack radius =
+--"#4a5568"
+drawTrack : Float -> Color.Color -> Float -> Svg msg
+drawTrack radius strokeColor strokeWidth =
   Svg.circle
     [ SA.cx "0"
     , SA.cy "0"
-    , SA.r <| String.fromFloat radius
+    , SA.r ( String.fromFloat radius )
     , SA.fill "none"
-    , SA.stroke "#4a5568"
-    , SA.strokeWidth "1"
+    , SA.stroke ( Color.toCssString strokeColor )
+    , SA.strokeWidth ( String.fromFloat strokeWidth )
     , SA.class "clock-track"
     ] []
 
@@ -96,11 +94,11 @@ drawTicks { radius, armRadius, ticks } =
 
 
 
-colorFill : Float -> Lch
-colorFill =
-  Lch.interpolateLong
-    { l = 92.991667, c = 47.855050,  h = -30 }
-    { l = 92.991667, c = 47.855050,  h = 330 }
+--colorFill : Float -> Lch
+--colorFill =
+--  Lch.interpolateLong
+--    { l = 92.991667, c = 47.855050,  h = -30 }
+--    { l = 92.991667, c = 47.855050,  h = 330 }
 
 
 drawArm : Clock.Arm -> Bool -> Float -> Svg msg
@@ -110,9 +108,6 @@ drawArm { radius, armRadius, animatedAngle } supportsP3Color delta =
 
     progress =
       newAngle / 360
-
-    fill =
-      ( Lch.toLab >> Lab.toRgb ) <| colorFill progress
 
     ( cx, cy ) =
       pointOnArc 0 0 radius newAngle
@@ -129,10 +124,7 @@ drawArm { radius, armRadius, animatedAngle } supportsP3Color delta =
           }
           ++ dotPath radius ( newAngle - ( armRadius / radius ) ) ( 0.8 * armRadius )
           ++ "Z"
-      , SA.fill <|
-          if supportsP3Color
-          then Rgb.toP3String fill
-          else Rgb.toString fill
+      , SA.fill "#d9d9d9"
       , SA.fillRule "evenodd"
       ] []
     ]

@@ -1,6 +1,6 @@
 module Color.Rgb exposing (..)
 
-
+import Hex
 import Color.Interpolate as Interpolate
 
 
@@ -24,20 +24,36 @@ interpolate rgb1 rgb2 time =
 
 -- Serialize
 
-
-toString { r, g, b }
+toCssString : RGB -> String
+toCssString { r, g, b }
   = "rgb("
-  ++ String.fromFloat r ++ ", "
-  ++ String.fromFloat g ++ ", "
-  ++ String.fromFloat b
+  ++ String.fromFloat ( r * 100 )
+  ++ "%, "
+  ++ String.fromFloat ( g * 100 )
+  ++ "%, "
+  ++ String.fromFloat ( b * 100 )
+  ++ "%)"
+
+
+toCssString255 : RGB -> String
+toCssString255 { r, g, b }
+  = "rgb("
+  ++ String.fromInt ( scaleTo255 r ) ++ ", "
+  ++ String.fromInt ( scaleTo255 g ) ++ ", "
+  ++ String.fromInt ( scaleTo255 b )
   ++ ")"
 
 
-toP3String { r, g, b }
-  = "color(display-p3 "
-  ++ String.fromFloat ( r / 255 )
-  ++ " "
-  ++ String.fromFloat ( g / 255 )
-  ++ " "
-  ++ String.fromFloat ( b / 255 )
-  ++ ")"
+toHex : RGB -> String
+toHex { r, g, b }
+  = "#"
+  ++ Hex.toString ( scaleTo255 r )
+  ++ Hex.toString ( scaleTo255 g )
+  ++ Hex.toString ( scaleTo255 b )
+
+
+scaleTo255 : Float -> Int
+scaleTo255 color =
+  color
+    |> (*) 255
+    |> truncate

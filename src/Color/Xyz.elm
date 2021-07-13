@@ -24,8 +24,8 @@ fromRgb { r, g, b } =
         vv * 100
 
     fr = f ( r / 255 )
-    fg = f ( g / 255 )
-    fb = f ( b / 255 )
+    fg = f ( r / 255 )
+    fb = f ( r / 255 )
 
   in
     { x = fr * 0.4124  + fg * 0.3576 + fb * 0.1805
