@@ -179,8 +179,11 @@ arcPath arc =
     outerRadius = radius + thickness
     innerRadius = radius - thickness
 
+    shouldCompleteCircle = angleSpan > ( 360 - 1.0e-6 )
+
     -- Remove division later
-    cornerRadius = min arc.cornerRadius ( thickness / 2 )
+    cornerRadius =
+      if shouldCompleteCircle then 0 else min ( max arc.cornerRadius 0 ) ( thickness / 2 )
 
     outerCornerOffsetAngle = headingChange cornerRadius outerRadius
     innerCornerOffsetAngle = headingChange cornerRadius innerRadius
@@ -217,7 +220,7 @@ arcPath arc =
     outerLargeArc =
       if angleSpan - 2 * outerCornerOffsetAngle > 180 then 1 else 0
   in
-  if angleSpan > ( 360 - 1.0e-6 ) then
+  if shouldCompleteCircle then
     let
       ( outerHalfX, outerHalfY ) =
         pointOnArc cx cy outerRadius ( startAngle + 180 )
