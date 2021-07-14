@@ -8,6 +8,7 @@ module Calendar exposing
   , toMonth
   , toWeekday
   , toDay
+  , subUnitOf
   , range
   , secondsRange
   , minutesRange
@@ -33,6 +34,18 @@ type Unit
   | Hours
   | Minutes
   | Seconds
+  | Millis
+
+subUnitOf : Unit -> Unit
+subUnitOf unit =
+  case unit of
+    Months   -> Days
+    Weekdays -> Hours
+    Days     -> Hours
+    Hours    -> Minutes
+    Minutes  -> Seconds
+    Seconds  -> Millis
+    Millis   -> Millis
 
 
 fromPosix = Date.fromPosix
@@ -159,6 +172,9 @@ toPart unit ( DateTime _ zone time ) =
     Seconds ->
       Time.toSecond zone time
 
+    Millis ->
+      Time.toMillis zone time
+
 
 toWeekday : Time.Zone -> Time.Posix -> Int
 toWeekday zone time =
@@ -209,6 +225,12 @@ range unit datetime =
     Seconds ->
       secondsRange
 
+    Millis ->
+      millisRange
+
+
+millisRange : List String
+millisRange = List.map String.fromInt ( List.range 0 999 )
 
 secondsRange : List String
 secondsRange = List.map String.fromInt ( List.range 0 59 )
