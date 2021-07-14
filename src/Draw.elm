@@ -212,12 +212,10 @@ arcPath arc =
     ( outerArcEndX, outerArcEndY ) =
       pointOnArc cx cy (outerRadius - cornerRadius) endAngle
 
-    largeArc =
-      if angleSpan - 2 * outerCornerOffsetAngle > 180 then
-        1
-
-      else
-        0
+    innerLargeArc =
+      if angleSpan - 2 * innerCornerOffsetAngle > 180 then 1 else 0
+    outerLargeArc =
+      if angleSpan - 2 * outerCornerOffsetAngle > 180 then 1 else 0
   in
   if angleSpan > ( 360 - 1.0e-6 ) then
     let
@@ -285,7 +283,7 @@ arcPath arc =
       , String.fromFloat outerRadius
       , String.fromFloat outerRadius
       , "0"
-      , String.fromFloat largeArc
+      , String.fromFloat outerLargeArc
       , "1"
       , String.fromFloat outerEndX
       , String.fromFloat outerEndY
@@ -312,7 +310,7 @@ arcPath arc =
       , String.fromFloat innerRadius
       , String.fromFloat innerRadius
       , "0"
-      , String.fromFloat largeArc
+      , String.fromFloat innerLargeArc
       , "0"
       , String.fromFloat innerStartX
       , String.fromFloat innerStartY
