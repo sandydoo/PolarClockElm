@@ -15,7 +15,6 @@
             "elm-community/easing-functions": "2.0.0",
             "hrldcpr/elm-cons": "3.1.0",
             "justinmimbs/date": "3.2.0",
-            "mgold/elm-animation": "2.0.0",
             "rtfeldman/elm-hex": "1.0.0"
         },
         "indirect": {

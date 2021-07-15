@@ -1,18 +1,10 @@
 module Draw exposing (..)
 
 
-import Animation as Anim
-import Svg exposing ( Svg )
-import Svg.Attributes as SA
-
-import Color
-
-import Clock
-
-
 
 -- Constants
 
+tau : Float
 tau = 2 * pi
 
 
@@ -26,114 +18,12 @@ type alias Arc =
   }
 
 
---"#4a5568"
-drawTrack : Float -> Color.Color -> Float -> Svg msg
-drawTrack radius strokeColor strokeWidth =
-  Svg.circle
-    [ SA.cx "0"
-    , SA.cy "0"
-    , SA.r ( String.fromFloat radius )
-    , SA.fill "none"
-    , SA.stroke ( Color.toCssString strokeColor )
-    , SA.strokeWidth ( String.fromFloat strokeWidth )
-    , SA.class "clock-track"
-    ] []
-
-
-
-drawCursor : Clock.Arm -> Float -> Svg msg
-drawCursor { radius, armRadius, animatedAngle } delta =
-  let
-    ( cx, cy ) = pointOnArc 0 0 radius ( Anim.animate delta animatedAngle )
-
-    translate =
-      "translate(" ++ String.fromFloat cx ++ "," ++ String.fromFloat cy ++ ")"
-  in
-  Svg.g
-    [ SA.transform translate ]
-    [ Svg.circle
-      [ SA.class "clock-track-hide-overflow"
-      , SA.cx "0"
-      , SA.cy "0"
-      , SA.r <| String.fromFloat armRadius
-      ] []
-    ]
-
-
-drawTicks : Clock.Arm -> List ( Svg msg )
-drawTicks { radius, armRadius, ticks } =
-  let
-    drawTick index tick =
-      let
-        ( cx, cy ) =
-          pointOnArc 0 0 radius ( toFloat index / toFloat ticks.count * 360 )
-
-        translateTick =
-          "translate(" ++ String.fromFloat cx ++ "," ++ String.fromFloat cy ++ ")"
-
-        fontSize = String.fromFloat ( 0.6 * armRadius ) ++ "px"
-      in
-      Svg.g
-        [ SA.transform translateTick
-        , SA.class "clock-tick"
-        ]
-        [ Svg.circle
-          [ SA.cx "0"
-          , SA.cy "0"
-          , SA.r <| String.fromFloat ( 0.7 * armRadius )
-          ] []
-        , Svg.text_
-          [ SA.dy "0.35em"
-          , SA.fontSize fontSize
-          ]
-          [ Svg.text tick ]
-        ]
-
-  in
-  List.indexedMap drawTick ticks.labels
-
-
-
---colorFill : Float -> Lch
---colorFill =
---  Lch.interpolateLong
---    { l = 92.991667, c = 47.855050,  h = -30 }
---    { l = 92.991667, c = 47.855050,  h = 330 }
-
-
-drawArm : Clock.Arm -> Float -> Svg msg
-drawArm { radius, armRadius, animatedAngle, ticks } delta =
-  let
-    newAngle = Anim.animate delta animatedAngle
-
-    progress =
-      newAngle / 360
-
-    ( cx, cy ) =
-      pointOnArc 0 0 radius newAngle
-  in
-  Svg.path
-    [ SA.d <|
-      arcPath
-        { startAngle = -armRadius / radius
-        , endAngle = newAngle + headingChange armRadius radius
-        , radius = radius
-        , thickness = armRadius
-        , cornerRadius = 23
-        }
-        --++ dotPath radius ( newAngle - ( armRadius / radius ) ) ( 0.8 * armRadius )
-        ++ "Z"
-    , SA.fill "#d9d9d9"
-    , SA.fillRule "evenodd"
-    ] []
-
-
 
 -- SVG Paths
 
 
-dotPath : Float -> Float -> Float -> String
-dotPath radius angle dotRadius =
+dot : Float -> Float -> Float -> String
+dot radius angle dotRadius =
   let
     ( cx, cy ) =
       pointOnArc 0 0 radius angle
@@ -164,32 +54,30 @@ dotPath radius angle dotRadius =
     ]
 
 
-arcPath : Arc -> String
-arcPath arc =
+arc : Arc -> String
+arc arcSpec =
   let
     cx = 0
     cy = 0
 
-    { radius, thickness } = arc
+    { radius, thickness } = arcSpec
 
     angleSpan =
-      abs ( arc.endAngle - arc.startAngle )
+      abs ( arcSpec.endAngle - arcSpec.startAngle )
 
-    -- Diving by 2 later
     outerRadius = radius + thickness
     innerRadius = radius - thickness
 
     shouldCompleteCircle = angleSpan > ( 360 - 1.0e-6 )
 
-    -- Remove division later
     cornerRadius =
-      if shouldCompleteCircle then 0 else min ( max arc.cornerRadius 0 ) ( thickness / 2 )
+      if shouldCompleteCircle then 0 else min ( max arcSpec.cornerRadius 0 ) thickness
 
     outerCornerOffsetAngle = headingChange cornerRadius outerRadius
     innerCornerOffsetAngle = headingChange cornerRadius innerRadius
 
-    startAngle = arc.startAngle
-    endAngle   = max arc.endAngle (outerCornerOffsetAngle * 2)
+    startAngle = arcSpec.startAngle
+    endAngle   = max arcSpec.endAngle (outerCornerOffsetAngle * 2)
 
     ( outerStartX, outerStartY ) =
       pointOnArc cx cy outerRadius ( startAngle + outerCornerOffsetAngle )
@@ -329,7 +217,7 @@ arcPath arc =
 
 
 
--- Utilities
+-- Calculations
 
 
 pointOnArc : Float -> Float -> Float -> Float -> ( Float, Float )

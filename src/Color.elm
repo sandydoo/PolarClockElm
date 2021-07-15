@@ -5,7 +5,8 @@ import Color.DisplayP3 as DisplayP3
 
 
 type Color
-  = RGB Rgb.RGB
+  = None
+  | RGB Rgb.RGB
   | DisplayP3 Rgb.RGB
 
 
@@ -24,8 +25,18 @@ toHexString colorspace =
 toCssString : Color -> String
 toCssString colorspace =
   case colorspace of
+    None ->
+      "transparent"
+
     RGB color ->
       Rgb.toCssString color
 
     DisplayP3 color ->
       DisplayP3.toCssString color
+
+
+none : Color
+none = None
+
+blue : Color
+blue = rgb 0 0 1

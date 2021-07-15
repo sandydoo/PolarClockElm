@@ -12,8 +12,6 @@ import Time
 
 import Calendar exposing ( DateTime(..) )
 import Clock
-import Color
-import Draw
 import Window
 
 
@@ -50,16 +48,11 @@ type Status
   = Paused
   | Playing
 
-type alias Animation =
-  { delta  : Float
-  , status : Status
-  }
-
 type alias Model =
   { datetime  : Calendar.DateTime
   , clock     : Clock
   , config    : Config
-  , animation : Animation
+  , status    : Status
   }
 
 
@@ -90,22 +83,17 @@ flagsDecoder =
 init : Flags -> ( Model, Cmd Msg )
 init flags =
   let
-    datetime = Calendar.toDatetime Time.utc (Time.millisToPosix flags.currentTime)
+    datetime = Calendar.toDatetime Time.utc <| Time.millisToPosix flags.currentTime
 
     config =
       { dimensions = flags.dimensions
       , colorSpace = if flags.supportsP3Color then DisplayP3 else SRGB
       }
-
-    animation =
-      { delta  = 0
-      , status = Playing
-      }
   in
   ( { datetime  = datetime
     , clock     = Clock.init datetime
     , config    = config
-    , animation = animation
+    , status    = Playing
     }
   , Task.perform UpdateTimeZone Time.here
   )
@@ -118,7 +106,6 @@ init flags =
 type Msg
   = UpdateTime Time.Posix
   | UpdateTimeZone Time.Zone
-  | Animate Float
   | Resize Window.Dimensions
   | ToggleState Event.Visibility
 
@@ -141,18 +128,9 @@ update msg model =
 
         newDatetime = Calendar.toDatetime zone newTime
 
-        newClock = Clock.update newDatetime model.animation.delta model.clock
+        newClock = Clock.update newDatetime model.clock
       in
       ( { model | datetime = newDatetime, clock = newClock }
-      , Cmd.none
-      )
-
-    Animate newDelta ->
-      let
-        animation = model.animation
-        newAnimation = { animation | delta = animation.delta + newDelta }
-      in
-      ( { model | animation = newAnimation }
       , Cmd.none
       )
 
@@ -168,9 +146,7 @@ update msg model =
 
     ToggleState visibility ->
       let
-        { animation } = model
-
-        status =
+        newStatus =
           case visibility of
             Event.Visible ->
               Playing
@@ -179,7 +155,7 @@ update msg model =
               Paused
 
       in
-      ( { model | animation = { animation | status = status } }
+      ( { model | status = newStatus }
       , Task.perform UpdateTime Time.now
       )
 
@@ -189,8 +165,8 @@ update msg model =
 
 
 subscriptions : Model -> Sub Msg
-subscriptions { animation } =
-  case animation.status of
+subscriptions { status } =
+  case status of
     Paused ->
       Sub.batch
         [ Event.onVisibilityChange ToggleState
@@ -199,8 +175,7 @@ subscriptions { animation } =
 
     Playing ->
       Sub.batch
-        [ Time.every 1000 UpdateTime
-        , Event.onAnimationFrameDelta Animate
+        [ Event.onAnimationFrame UpdateTime
         , Event.onVisibilityChange ToggleState
         , Window.onResize Resize
         ]
@@ -213,8 +188,11 @@ subscriptions { animation } =
 view : Model -> Html Msg
 view model =
   let
-    { config, animation } = model
-    { width, height } = config.dimensions
+    { width, height } = model.config.dimensions
+
+    thickness = 23
+    radius = 200
+    angle = 180
   in
   Html.div []
     [ Svg.svg
@@ -225,11 +203,30 @@ view model =
       ]
       [ Svg.g
         [ SA.transform "translate(500, 500)" ] <|
+        --[ Svg.path
+        --  [ SA.d <|
+        --    Draw.arcPath
+        --      { startAngle = 0
+        --      , endAngle = angle
+        --      , radius = radius
+        --      , thickness = thickness
+        --      , cornerRadius = 0
+        --      }
+        --      --++ dotPath radius ( newAngle - ( armRadius / radius ) ) ( 0.8 * armRadius )
+        --      ++ "Z"
+        --  , SA.fill "#d9d9d9"
+        --  , SA.fillRule "evenodd"
+        --  , SA.stroke "black"
+        --  , SA.strokeWidth "2"
+        --  ] []
+        --]
         flip List.map model.clock <| \arm ->
           Svg.g []
-          [ Draw.drawTrack arm.radius (Color.rgb 1.0 1.0 1.0) 0.5
-          , Svg.g [] <| Draw.drawTicks arm
-          , Draw.drawArm arm animation.delta
+          --[ Draw.drawTrack arm.radius (Color.rgb 1.0 1.0 1.0) 0.5
+          --, Svg.g [] <| Draw.drawTicks arm
+          --, Draw.drawArm arm animation.delta
+          --]
+          [ Clock.drawArm arm
           ]
       ]
     ]
