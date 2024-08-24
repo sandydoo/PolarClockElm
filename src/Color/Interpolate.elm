@@ -20,19 +20,38 @@ float start end time =
 
 
 hue : Float -> Float -> Float -> Float
-hue a b =
+hue a b t =
     let
-        d =
-            if b > a && b - a > 180 then
-                b - a + 360
+        ha =
+            normalizeHue a
 
-            else if b < a && a - b > 180 then
-                b + 360 - a
+        hb =
+            normalizeHue b
+
+        -- Calculate the shortest distance between hues
+        d =
+            if abs (hb - ha) <= 180 then
+                hb - ha
+
+            else if hb > ha then
+                (hb - 360) - ha
 
             else
-                b - a
+                (hb + 360) - ha
     in
-    linear a d
+    normalizeHue (linear a d t)
+
+
+normalizeHue : Float -> Float
+normalizeHue h =
+    if h < 0 then
+        normalizeHue (h + 360)
+
+    else if h > 360 then
+        normalizeHue (h - 360)
+
+    else
+        h
 
 
 scaleProgress : Int -> Float -> ( Int, Int, Float )

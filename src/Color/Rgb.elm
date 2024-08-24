@@ -23,6 +23,7 @@ interpolate rgb1 rgb2 time =
 -- Serialize
 
 
+toString : RGB -> String
 toString { r, g, b } =
     "rgb("
         ++ String.fromFloat r
@@ -33,6 +34,7 @@ toString { r, g, b } =
         ++ ")"
 
 
+toP3String : RGB -> String
 toP3String { r, g, b } =
     "color(display-p3 "
         ++ String.fromFloat (r / 255)

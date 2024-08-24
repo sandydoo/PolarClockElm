@@ -5,6 +5,7 @@ import Clock
 import Color.Interpolate as Interpolate
 import Color.Lab as Lab exposing (Lab)
 import Color.Lch as Lch exposing (Lch)
+import Color.OkLch as OkLch
 import Color.Rgb as Rgb
 import Cons exposing (cons)
 import Svg exposing (Svg)
@@ -135,11 +136,13 @@ groupOfTicks clockArms =
         List.concatMap ticksAlongTrack clockArms
 
 
-colorFill : Float -> Lch
-colorFill =
-    Lch.interpolateLong
-        { l = 92.991667, c = 47.85505, h = -30 }
-        { l = 92.991667, c = 47.85505, h = 330 }
+colorFill : Float -> String
+colorFill progress =
+    OkLch.toString <|
+        OkLch.interpolateLong
+            { l = 98.0, c = 0.13, h = 60.0, a = Nothing }
+            { l = 98.0, c = 0.13, h = 320.0, a = Nothing }
+            progress
 
 
 singleArm : Clock.Arm -> Bool -> Float -> Svg msg
@@ -150,9 +153,6 @@ singleArm { radius, armRadius, animatedAngle } supportsP3Color delta =
 
         progress =
             newAngle / 360
-
-        fill =
-            (Lch.toLab >> Lab.toRgb) <| colorFill progress
 
         ( cx, cy ) =
             pointOnArc 0 0 radius newAngle
@@ -170,11 +170,7 @@ singleArm { radius, armRadius, animatedAngle } supportsP3Color delta =
                     ++ dotPath radius (newAngle - (armRadius / radius)) (0.8 * armRadius)
                     ++ "Z"
             , SA.fill <|
-                if supportsP3Color then
-                    Rgb.toP3String fill
-
-                else
-                    Rgb.toString fill
+                colorFill progress
             , SA.fillRule "evenodd"
             ]
             []
