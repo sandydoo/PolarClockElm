@@ -140,8 +140,8 @@ colorFill : Float -> String
 colorFill progress =
     OkLch.toString <|
         OkLch.interpolateLong
-            { l = 98.0, c = 0.13, h = 60.0, a = Nothing }
-            { l = 98.0, c = 0.13, h = 320.0, a = Nothing }
+            { l = 81.56, c = 0.1, h = 70.0, a = Nothing }
+            { l = 81.56, c = 0.1, h = 260.0, a = Nothing }
             progress
 
 

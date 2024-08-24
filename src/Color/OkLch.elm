@@ -1,3 +1,8 @@
+{- https://oklch.com
+   Check that values are within displayable range.
+-}
+
+
 module Color.OkLch exposing (..)
 
 import Color.Interpolate as Interpolate
