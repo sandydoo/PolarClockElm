@@ -1,18 +1,16 @@
 module Main exposing (..)
 
-
 import Animation as Anim
 import Browser
 import Browser.Events as Event
-import Json.Decode as Decode exposing ( Decoder )
-import Html exposing ( Html )
-import Html.Attributes
-import Task
-import Time
-
-import Calendar exposing ( DateTime(..) )
+import Calendar exposing (DateTime(..))
 import Clock
 import Draw
+import Html exposing (Html)
+import Html.Attributes
+import Json.Decode as Decode exposing (Decoder)
+import Task
+import Time
 import Window
 
 
@@ -22,12 +20,12 @@ import Window
 
 main : Program Flags Model Msg
 main =
-  Browser.element
-    { init = init
-    , update = update
-    , view = view
-    , subscriptions = subscriptions
-    }
+    Browser.element
+        { init = init
+        , update = update
+        , view = view
+        , subscriptions = subscriptions
+        }
 
 
 
@@ -35,18 +33,18 @@ main =
 
 
 type alias Model =
-  { datetime        : Calendar.DateTime
-  , clockArms       : List Clock.Arm
-  , dimensions      : Window.Dimensions
-  , supportsP3Color : Bool
-  , delta           : Float
-  , state           : State
-  }
+    { datetime : Calendar.DateTime
+    , clockArms : List Clock.Arm
+    , dimensions : Window.Dimensions
+    , supportsP3Color : Bool
+    , delta : Float
+    , state : State
+    }
 
 
 type State
-  = Paused
-  | Playing
+    = Paused
+    | Playing
 
 
 
@@ -54,45 +52,48 @@ type State
 
 
 type alias Flags =
-  { currentTime     : Int
-  , dimensions      : Window.Dimensions
-  , supportsP3Color : Bool
-  }
+    { currentTime : Int
+    , dimensions : Window.Dimensions
+    , supportsP3Color : Bool
+    }
 
 
 flagsDecoder : Decoder Flags
 flagsDecoder =
-  Decode.map3 Flags
-    ( Decode.field "currentTime" Decode.int )
-    ( Decode.field "dimensions" <|
-        Decode.map2 Window.Dimensions
-          ( Decode.field "width"  Decode.int )
-          ( Decode.field "height" Decode.int )
-    )
-    ( Decode.field "supportsP3Color" Decode.bool )
-
+    Decode.map3 Flags
+        (Decode.field "currentTime" Decode.int)
+        (Decode.field "dimensions" <|
+            Decode.map2 Window.Dimensions
+                (Decode.field "width" Decode.int)
+                (Decode.field "height" Decode.int)
+        )
+        (Decode.field "supportsP3Color" Decode.bool)
 
 
 init : Flags -> ( Model, Cmd Msg )
 init flags =
-  let
-    time = Time.millisToPosix flags.currentTime
+    let
+        time =
+            Time.millisToPosix flags.currentTime
 
-    zone = Time.utc
+        zone =
+            Time.utc
 
-    datetime = Calendar.toDatetime zone time
+        datetime =
+            Calendar.toDatetime zone time
 
-    clockArms = Clock.init datetime
-  in
-  ( { datetime        = datetime
-    , clockArms       = clockArms
-    , dimensions      = flags.dimensions
-    , supportsP3Color = flags.supportsP3Color
-    , delta           = 0
-    , state           = Playing
-    }
-  , Task.perform UpdateTimeZone Time.here
-  )
+        clockArms =
+            Clock.init datetime
+    in
+    ( { datetime = datetime
+      , clockArms = clockArms
+      , dimensions = flags.dimensions
+      , supportsP3Color = flags.supportsP3Color
+      , delta = 0
+      , state = Playing
+      }
+    , Task.perform UpdateTimeZone Time.here
+    )
 
 
 
@@ -100,61 +101,66 @@ init flags =
 
 
 type Msg
-  = UpdateTime Time.Posix
-  | UpdateTimeZone Time.Zone
-  | Animate Float
-  | Resize Window.Dimensions
-  | ToggleState Event.Visibility
+    = UpdateTime Time.Posix
+    | UpdateTimeZone Time.Zone
+    | Animate Float
+    | Resize Window.Dimensions
+    | ToggleState Event.Visibility
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-  case msg of
-    UpdateTimeZone newZone ->
-      let
-        ( DateTime _ _ time ) = model.datetime
-        newDatetime = Calendar.toDatetime newZone time
-      in
-      ( { model | datetime = newDatetime }
-      , Cmd.none
-      )
+    case msg of
+        UpdateTimeZone newZone ->
+            let
+                (DateTime _ _ time) =
+                    model.datetime
 
-    UpdateTime newTime ->
-      let
-        ( DateTime _ zone _ ) = model.datetime
+                newDatetime =
+                    Calendar.toDatetime newZone time
+            in
+            ( { model | datetime = newDatetime }
+            , Cmd.none
+            )
 
-        newDatetime = Calendar.toDatetime zone newTime
+        UpdateTime newTime ->
+            let
+                (DateTime _ zone _) =
+                    model.datetime
 
-        newClockArms = Clock.update newDatetime model.delta model.clockArms
-      in
-      ( { model | datetime = newDatetime, clockArms = newClockArms }
-      , Cmd.none
-      )
+                newDatetime =
+                    Calendar.toDatetime zone newTime
 
-    Animate newDelta ->
-      ( { model | delta = model.delta + newDelta }
-      , Cmd.none
-      )
+                newClockArms =
+                    Clock.update newDatetime model.delta model.clockArms
+            in
+            ( { model | datetime = newDatetime, clockArms = newClockArms }
+            , Cmd.none
+            )
 
-    Resize newDimensions ->
-      ( { model | dimensions = newDimensions }
-      , Cmd.none
-      )
+        Animate newDelta ->
+            ( { model | delta = model.delta + newDelta }
+            , Cmd.none
+            )
 
-    ToggleState visibility ->
-      let
-        state =
-          case visibility of
-            Event.Visible ->
-              Playing
+        Resize newDimensions ->
+            ( { model | dimensions = newDimensions }
+            , Cmd.none
+            )
 
-            Event.Hidden ->
-              Paused
+        ToggleState visibility ->
+            let
+                state =
+                    case visibility of
+                        Event.Visible ->
+                            Playing
 
-      in
-      ( { model | state = state }
-      , Task.perform UpdateTime Time.now
-      )
+                        Event.Hidden ->
+                            Paused
+            in
+            ( { model | state = state }
+            , Task.perform UpdateTime Time.now
+            )
 
 
 
@@ -163,20 +169,20 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-  case model.state of
-    Paused ->
-      Sub.batch
-        [ Event.onVisibilityChange ToggleState
-        , Window.onResize Resize
-        ]
+    case model.state of
+        Paused ->
+            Sub.batch
+                [ Event.onVisibilityChange ToggleState
+                , Window.onResize Resize
+                ]
 
-    Playing ->
-      Sub.batch
-        [ Time.every 1000 UpdateTime
-        , Event.onAnimationFrameDelta Animate
-        , Event.onVisibilityChange ToggleState
-        , Window.onResize Resize
-        ]
+        Playing ->
+            Sub.batch
+                [ Time.every 1000 UpdateTime
+                , Event.onAnimationFrameDelta Animate
+                , Event.onVisibilityChange ToggleState
+                , Window.onResize Resize
+                ]
 
 
 
@@ -185,7 +191,8 @@ subscriptions model =
 
 view : Model -> Html Msg
 view model =
-  let
-    { dimensions, clockArms, delta, supportsP3Color } = model
-  in
-  Html.div [] [ Draw.clock dimensions supportsP3Color clockArms delta ]
+    let
+        { dimensions, clockArms, delta, supportsP3Color } =
+            model
+    in
+    Html.div [] [ Draw.clock dimensions supportsP3Color clockArms delta ]
