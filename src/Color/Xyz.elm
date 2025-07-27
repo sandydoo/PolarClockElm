@@ -68,9 +68,8 @@ toRgb { x, y, z } =
             in
             (vv * 255)
                 |> clamp 0 255
-                |> round
     in
-    { r = toFloat (f r)
-    , g = toFloat (f g)
-    , b = toFloat (f b)
+    { r = f r
+    , g = f g
+    , b = f b
     }
