@@ -74,7 +74,15 @@ fromRgb rgb =
             (e * (green - l) - c * (blue - l)) / d
 
         s =
-            sqrt (x ^ 2 + y ^ 2) / (e * l * (1 - l))
+            let
+                denominator =
+                    e * l * (1 - l)
+            in
+            if abs denominator < 1.0e-10 then
+                0
+
+            else
+                sqrt (x ^ 2 + y ^ 2) / denominator
 
         h =
             atan2 y x * 180 / pi - 120
