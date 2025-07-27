@@ -44,14 +44,15 @@ hue a b t =
 
 normalizeHue : Float -> Float
 normalizeHue h =
-    if h < 0 then
-        normalizeHue (h + 360)
-
-    else if h > 360 then
-        normalizeHue (h - 360)
+    let
+        normalized =
+            h - 360 * toFloat (floor (h / 360))
+    in
+    if normalized < 0 then
+        normalized + 360
 
     else
-        h
+        normalized
 
 
 scaleProgress : Int -> Float -> ( Int, Int, Float )
